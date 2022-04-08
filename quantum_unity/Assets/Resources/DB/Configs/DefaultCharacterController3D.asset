@@ -42,7 +42,7 @@ MonoBehaviour:
     Braking:
       RawValue: 655360
     BaseJumpImpulse:
-      RawValue: 131072
+      RawValue: 262144
     MaxSpeed:
       RawValue: 65536
     Gravity:
