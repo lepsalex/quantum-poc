@@ -60,7 +60,7 @@ MonoBehaviour:
         RawValue: 655
       ShapeCastSoftTolerance:
         RawValue: 3275
-      AllowSleeping: 0
+      AllowSleeping: 1
       SleepTimeSec:
         RawValue: 32768
       LinearSleepTolerance:
@@ -138,7 +138,7 @@ MonoBehaviour:
     HeapPageShift: 15
     HeapPageCount: 256
     HeapExtraCount: 0
-    ThreadCount: 2
+    ThreadCount: 4
     ChecksumSnapshotHistoryLengthSeconds:
       RawValue: 196608
     ChecksumErrorDumpOptions: 0
