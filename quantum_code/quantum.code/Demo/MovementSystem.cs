@@ -9,11 +9,12 @@ namespace Quantum
             public EntityRef Entity;
             public CharacterController3D* KCC;
             public Transform3D* Transform;
+            public PlayerLink* Link;
         }
 
         public override void Update(Frame f, ref Filter filter)
         {
-            var input = f.GetPlayerInput(0);
+            var input = f.GetPlayerInput(filter.Link->Player);
 
             if (input->Jump.WasPressed)
             {
