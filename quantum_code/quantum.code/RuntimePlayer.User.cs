@@ -6,9 +6,12 @@ using System.Text;
 
 namespace Quantum {
   partial class RuntimePlayer {
+    
+    public AssetRefEntityPrototype CharacterPrototype;
+    
     partial void SerializeUserData(BitStream stream)
     {
-      // implementation
+      stream.Serialize(ref CharacterPrototype.Id);
     }
   }
 }

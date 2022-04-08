@@ -2,7 +2,7 @@ using Photon.Deterministic;
 
 namespace Quantum
 {
-    public unsafe class MovementSystem : SystemMainThreadFilter<MovementSystem.Filter>
+    public unsafe class MovementSystem : SystemMainThreadFilter<MovementSystem.Filter>, ISignalOnPlayerDataSet
     {
         public struct Filter
         {
@@ -32,6 +32,27 @@ namespace Quantum
             if (input->Direction != default)
             {
                 filter.Transform->Rotation = FPQuaternion.LookRotation(input->Direction.XOY);
+            }
+        }
+
+        public void OnPlayerDataSet(Frame f, PlayerRef player)
+        {
+            var data = f.GetPlayerData(player);
+            var prototype = f.FindAsset<EntityPrototype>(data.CharacterPrototype.Id);
+
+            // create the player character
+            var e = f.Create(prototype);
+
+            // link player
+            if (f.Unsafe.TryGetPointer<PlayerLink>(e, out var pl))
+            {
+                pl->Player = player;
+            }
+
+            // update X position
+            if (f.Unsafe.TryGetPointer<Transform3D>(e, out var t))
+            {
+                t->Position.X = 0 + player;
             }
         }
     }

@@ -41,11 +41,31 @@ MonoBehaviour:
         Id:
           Value: 5
       ResourcePath: DB/Configs/SimulationConfig
+    - Path: Resources/DB/PlayerCharacter|EntityPrototype
+      AssetRef:
+        Id:
+          Value: 204577573280856750
+      ResourcePath: DB/PlayerCharacter
+    - Path: Resources/DB/BoxEntity|EntityPrototype
+      AssetRef:
+        Id:
+          Value: 586522604042806679
+      ResourcePath: DB/BoxEntity
     - Path: Resources/DB/Map1
       AssetRef:
         Id:
           Value: 1710471675203725834
       ResourcePath: DB/Map1
+    - Path: Resources/DB/PlayerCharacter|EntityView
+      AssetRef:
+        Id:
+          Value: 1958069389350386752
+      ResourcePath: DB/PlayerCharacter
+    - Path: Resources/DB/BoxEntity|EntityView
+      AssetRef:
+        Id:
+          Value: 2298594142796923000
+      ResourcePath: DB/BoxEntity
     - Path: Resources/DB/Map1_mesh
       AssetRef:
         Id:
