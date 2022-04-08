@@ -19,6 +19,11 @@ public class CustomCallbacks : QuantumCallbacks
   public override void OnGameResync(Quantum.QuantumGame game)
   {
     Debug.Log("Detected Resync. Verified tick: " + game.Frames.Verified.Number);
+    
+    foreach (var lp in game.GetLocalPlayers()) {
+      Debug.Log("CustomCallbacks - sending player: " + lp);
+      game.SendPlayerData(lp, PlayerData);
+    }
   }
 }
 
