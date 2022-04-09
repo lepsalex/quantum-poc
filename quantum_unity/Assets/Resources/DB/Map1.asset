@@ -81,9 +81,51 @@ MonoBehaviour:
         ColliderIndex: 0
         MutableMode: 0
       MutableMode: 0
+    - Rotation:
+        X:
+          RawValue: 0
+        Y:
+          RawValue: 0
+        Z:
+          RawValue: 0
+        W:
+          RawValue: 65536
+      Position:
+        X:
+          RawValue: 0
+        Y:
+          RawValue: -120586
+        Z:
+          RawValue: 0
+      PhysicsMaterial:
+        Id:
+          Value: 0
+      ShapeType: 2
+      SphereRadius:
+        RawValue: 0
+      BoxExtents:
+        X:
+          RawValue: 655360
+        Y:
+          RawValue: 16384
+        Z:
+          RawValue: 655360
+      SmoothSphereMeshCollisions: 0
+      StaticData:
+        Name: Respawn
+        Tag: Untagged
+        Layer: 0
+        Asset:
+          Id:
+            Value: 0
+        IsTrigger: 1
+        ColliderIndex: 1
+        MutableMode: 0
+      MutableMode: 0
     MapEntities: []
   Prototypes:
   - PlayerLink: []
+    Respawn: []
     CharacterController2D: []
     CharacterController3D: []
     NavMeshAvoidanceAgent: []
@@ -175,6 +217,7 @@ MonoBehaviour:
     PhysicsJoints2D: []
     PhysicsJoints3D: []
   - PlayerLink: []
+    Respawn: []
     CharacterController2D: []
     CharacterController3D: []
     NavMeshAvoidanceAgent: []
@@ -266,6 +309,7 @@ MonoBehaviour:
     PhysicsJoints2D: []
     PhysicsJoints3D: []
   - PlayerLink: []
+    Respawn: []
     CharacterController2D: []
     CharacterController3D: []
     NavMeshAvoidanceAgent: []
@@ -353,6 +397,77 @@ MonoBehaviour:
           RawValue: 3259253
         Z:
           RawValue: 23004862
+    View: []
+    PhysicsJoints2D: []
+    PhysicsJoints3D: []
+  - PlayerLink: []
+    Respawn:
+    - _empty_prototype_dummy_field_: 0
+    CharacterController2D: []
+    CharacterController3D: []
+    NavMeshAvoidanceAgent: []
+    NavMeshAvoidanceObstacle: []
+    NavMeshPathfinder: []
+    NavMeshSteeringAgent: []
+    PhysicsBody2D: []
+    PhysicsBody3D: []
+    PhysicsCollider2D: []
+    PhysicsCollider3D:
+    - ShapeConfig:
+        ShapeType: 2
+        SphereRadius:
+          RawValue: 0
+        PositionOffset:
+          X:
+            RawValue: 0
+          Y:
+            RawValue: 0
+          Z:
+            RawValue: 0
+        BoxExtents:
+          X:
+            RawValue: 655360
+          Y:
+            RawValue: 0
+          Z:
+            RawValue: 655360
+        RotationOffset:
+          X:
+            RawValue: 0
+          Y:
+            RawValue: 0
+          Z:
+            RawValue: 0
+        UserTag: 0
+        IsPersistent: 1
+        CompoundShapes: []
+        IsSetFromSourceCollider: 0
+      Layer: 0
+      IsTrigger: 1
+      PhysicsMaterial:
+        Id:
+          Value: 0
+    PhysicsCallbacks2D: []
+    PhysicsCallbacks3D:
+    - CallbackFlags:
+        Value: 64
+    Transform2D: []
+    Transform2DVertical: []
+    Transform3D:
+    - Position:
+        X:
+          RawValue: 0
+        Y:
+          RawValue: -120586
+        Z:
+          RawValue: 0
+      Rotation:
+        X:
+          RawValue: 0
+        Y:
+          RawValue: 0
+        Z:
+          RawValue: 0
     View: []
     PhysicsJoints2D: []
     PhysicsJoints3D: []

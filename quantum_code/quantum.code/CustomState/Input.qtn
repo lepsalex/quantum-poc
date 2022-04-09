@@ -2,7 +2,3 @@ input {
     button Jump;
     FPVector2 Direction;
 }
-
-component PlayerLink {
-    player_ref Player;
-}

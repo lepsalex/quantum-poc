@@ -21,8 +21,11 @@ namespace Quantum {
         new Core.EntityPrototypeSystem(),
         new Core.PlayerConnectedSystem(),
 
-        // user systems go here 
-        new MovementSystem()
+        // custom systems 
+        new PlayerInitSystem(),
+        new MovementSystem(),
+        new PlayerRespawnSystem(),
+        new PlayerDisconnectSystem()
       };
     }
   }
