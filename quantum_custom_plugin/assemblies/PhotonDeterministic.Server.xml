@@ -1,0 +1,435 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>PhotonDeterministic.Server</name>
+    </assembly>
+    <members>
+        <member name="T:Photon.Deterministic.Server.DeterministicServer">
+            <summary>
+            Override this class and implement its virtual methods to hook into the Quantum server callbacks.
+            </summary>
+            \ingroup CustomPlugin
+        </member>
+        <member name="M:Photon.Deterministic.Server.DeterministicServer.OnDeterministicPlayerDataSet(Photon.Deterministic.Server.DeterministicPluginClient,Photon.Deterministic.Protocol.SetPlayerData)">
+            <summary>
+            Is called before runtime player data for a client is processed. The serialized runtime player data can be changed this way:
+            </summary>
+            <example><code>
+            var runtimePlayer = RuntimePlayer.FromByteArray(playerData.Data);
+            runPlayer.InitialHealth = 10;
+            playerData.Data = RuntimePlayer.ToByteArray(runtimePlayer);
+            </code></example>
+            It is possible to return false to stop the processing, send an asynchronous HTTP request (USE PHOTON HTTP API) to another backend and continue the player data processing later by calling <see cref="M:Photon.Deterministic.Server.DeterministicServer.SetDeterministicPlayerData(Photon.Deterministic.Protocol.SetPlayerData)"/>.
+            Cache the playerData while waiting for the request answer. The sender is encoded inside the message itself, so no need to cache the client object.
+            <param name="client">Client object</param>
+            <param name="playerData">Player data message</param>
+            <returns>True to continue processing the player data</returns>
+        </member>
+        <member name="M:Photon.Deterministic.Server.DeterministicServer.OnDeterministicSnapshotRequested(System.Int32@,System.Byte[]@)">
+            <summary>
+            When client request a shapshots this method is called before the request is forwarded to other clients. This gives the opportunity, if the server runs the simulation itself, to send the snapshot directly to the client.
+            </summary>
+            <example><code>
+            tick = container.FrameVerified.Number
+            data = container.FrameVerified.Serialize(DeterministicFrameSerializeMode.Serialize)
+            return true;
+            </code></example>
+            <param name="tick">The tick of the snapshot</param>
+            <param name="data">The serialized snapshot</param>
+            <returns>True to signal that parameters have been set and the snapshot can be send directly.</returns>
+        </member>
+        <member name="M:Photon.Deterministic.Server.DeterministicServer.OnDeterministicCommand(Photon.Deterministic.Server.DeterministicPluginClient,Photon.Deterministic.Protocol.Command)">
+            <summary>
+            Is called before a player command is fed to the simulation.
+            </summary>
+            <param name="client">Client that sent the command</param>
+            <param name="cmd">Command object</param>
+            <returns>True to continue processing the command</returns>
+        </member>
+        <member name="M:Photon.Deterministic.Server.DeterministicServer.SetDeterministicPlayerData(Photon.Deterministic.Protocol.SetPlayerData)">
+            <summary>
+            Call this method to continue the interupted flow of <see cref="M:Photon.Deterministic.Server.DeterministicServer.OnDeterministicPlayerDataSet(Photon.Deterministic.Server.DeterministicPluginClient,Photon.Deterministic.Protocol.SetPlayerData)"/>.
+            The original client sender is encoded playerData.Index.
+            </summary>
+            <param name="playerData">SetPlayerData message with a serialized RuntimePlayer object</param>
+        </member>
+        <member name="M:Photon.Deterministic.Server.DeterministicServer.SendDeterministicCommand(Photon.Deterministic.Protocol.Command)">
+            <summary>
+             Call this method to inject a command into the simulation from the server.
+            </summary>
+            <param name="command">Command object</param>
+        </member>
+        <member name="M:Photon.Deterministic.Server.DeterministicServer.OnDeterministicClientJoinRequestSession(Photon.Deterministic.Server.DeterministicPluginClient,Photon.Deterministic.Protocol.Join)">
+            <summary>
+            Is called before a client is permitted to join the session. 
+            </summary>
+            <param name="client">Client object</param>
+            <param name="joinData">Join message data</param>
+            <returns>True to let the client join the game</returns>
+        </member>
+        <member name="M:Photon.Deterministic.Server.DeterministicServer.OnDeterministicClientJoinedSession(Photon.Deterministic.Server.DeterministicPluginClient)">
+            <summary>
+            Is called after the client joined the session and player slots have been assigned. 
+            This callback subsequentially follows <see cref="M:Photon.Deterministic.Server.DeterministicServer.OnDeterministicClientJoinRequestSession(Photon.Deterministic.Server.DeterministicPluginClient,Photon.Deterministic.Protocol.Join)"/>.
+            </summary>
+            <param name="client">Client object</param>
+        </member>
+        <member name="M:Photon.Deterministic.Server.DeterministicServer.OnDeterministicSessionConfig(Photon.Deterministic.Server.DeterministicPluginClient,Photon.Deterministic.Protocol.SessionConfig)">
+            <summary>
+            Is called before a <see cref="T:Photon.Deterministic.DeterministicSessionConfig"/> that was sent by a client is applied to the simulation.
+            Deserialize and serialize <see cref="F:Photon.Deterministic.Protocol.SessionConfig.Config"/> to modify the content.
+            </summary>
+            <param name="client">Client object</param>
+            <param name="configData">Protocol message with encoded <see cref="T:Photon.Deterministic.DeterministicSessionConfig"/></param>
+        </member>
+        <member name="M:Photon.Deterministic.Server.DeterministicServer.OnDeterministicRuntimeConfig(Photon.Deterministic.Server.DeterministicPluginClient,Photon.Deterministic.Protocol.RuntimeConfig)">
+            <summary>
+            The <see cref="T:Photon.Deterministic.Protocol.RuntimeConfig"/> is sent by the clients. First come, first serve. This method is called (once per session) before the runtime config is applied. Check of modify values here.
+            Deserialize and serialize the modified data to <see cref="F:Photon.Deterministic.Protocol.RuntimeConfig.Config"/>.
+            </summary>
+            <param name="client">Client object</param>
+            <param name="configData">Serialized runtime config</param>
+        </member>
+        <member name="M:Photon.Deterministic.Server.DeterministicServer.OnDeterministicLateStart(Photon.Deterministic.Server.DeterministicPluginClient,Photon.Deterministic.Protocol.SimulationStart)">
+            <summary>
+            Is called when the late-joining or reconnecting client is about to receive the simulation start event.
+            </summary>
+            <param name="client">Client object</param>
+            <param name="startData">SimulationStart message include serialized runtime config</param>
+            <returns>Return a value to force a certain tick that the player should start from</returns>
+        </member>
+        <member name="M:Photon.Deterministic.Server.DeterministicServer.SetDeterministicSessionConfig(Photon.Deterministic.DeterministicSessionConfig)">
+            <summary>
+            Usually the <see cref="T:Photon.Deterministic.DeterministicSessionConfig"/> is sent by the clients. First come, first serve. 
+            Call this method to set it from the server for more protection.
+            <see cref="P:Photon.Deterministic.Server.DeterministicServer.Session"/> need to be in <see cref="F:Photon.Deterministic.Server.DeterministicPluginSessionState.Idle"/> state.
+            </summary>
+            <param name="config">Deterministic config</param>
+        </member>
+        <member name="M:Photon.Deterministic.Server.DeterministicServer.SetDeterministicRuntimeConfig(System.Byte[])">
+            <summary>
+            Usually the RuntimeConfig object (from the simulation code project) is sent by the clients. First come, first serve.
+            Use this method to set if from the server for modifications or more protection.
+            <see cref="P:Photon.Deterministic.Server.DeterministicServer.Session"/> need to be in <see cref="F:Photon.Deterministic.Server.DeterministicPluginSessionState.Idle"/> state.
+            </summary>
+            <param name="configData"></param>
+        </member>
+        <member name="M:Photon.Deterministic.Server.DeterministicServer.OnDeterministicInputReceived(Photon.Deterministic.Server.DeterministicPluginClient,Photon.Deterministic.DeterministicTickInput)">
+            <summary>
+            Is called then input is received from a client (input is still acceptable based on the time) and also when the server generated the input.
+            </summary>
+            <param name="client">Client object</param>
+            <param name="input">Input object</param>
+        </member>
+        <member name="M:Photon.Deterministic.Server.DeterministicServer.OnDeterministicInputConfirmed(Photon.Deterministic.Server.DeterministicPluginClient,System.Int32,System.Int32,Photon.Deterministic.DeterministicTickInput)">
+            <summary>
+            Is called when input for a client and tick is confirmed.
+            </summary>
+            <param name="client">Client object</param>
+            <param name="tick">The input tick</param>
+            <param name="playerIndex">Player index</param>
+            <param name="input">Input object</param>
+        </member>
+        <member name="M:Photon.Deterministic.Server.DeterministicServer.OnDeterministicServerInput(Photon.Deterministic.DeterministicTickInput)">
+            <summary>
+            Override to set the input data for a server controlled player.
+            Tick and player index have already been set on the input object.
+            <see cref="F:Photon.Deterministic.DeterministicInputFlags.PlayerNotPresent"/> is always applied to to the input.Flags after this callback.
+            </summary>
+            <param name="input">Input data</param>
+            <returns>True when the input is modified in this callback</returns>
+        </member>
+        <member name="M:Photon.Deterministic.Server.DeterministicServer.OnDeterministicStartSession">
+            <summary>
+            Is called when the simulation has been started.
+            </summary>
+        </member>
+        <member name="M:Photon.Deterministic.Server.DeterministicServer.OnDeterministicServerReplacedInput(Photon.Deterministic.DeterministicTickInput)">
+            <summary>
+            Is called when the input for a real player has been replaced by the server.
+            </summary>
+            <param name="input">Input object</param>
+        </member>
+        <member name="M:Photon.Deterministic.Server.DeterministicServer.OnDeterministicUpdate">
+            <summary>
+            Is called during each update tick after the input has been processed.
+            </summary>
+        </member>
+        <member name="P:Photon.Deterministic.Server.DeterministicServer.ClientCount">
+            <summary>
+            Corresponds to the room size.
+            </summary>
+        </member>
+        <member name="P:Photon.Deterministic.Server.DeterministicServer.PlayerCount">
+            <summary>
+            Quantum player count as set in <see cref="F:Photon.Deterministic.DeterministicSessionConfig.PlayerCount"/>
+            </summary>
+        </member>
+        <member name="P:Photon.Deterministic.Server.DeterministicServer.Session">
+            <summary>
+            Access the current running session.
+            </summary>
+        </member>
+        <member name="P:Photon.Deterministic.Server.DeterministicServer.PluginHost">
+            <summary>
+            Access the plugin host object
+            </summary>
+        </member>
+        <member name="M:Photon.Deterministic.Server.DeterministicServer.MaxPing">
+            <summary>
+            Get the largest ping (Rtt) of all players.
+            </summary>
+            <returns>Max ping in milliseconds</returns>
+        </member>
+        <member name="M:Photon.Deterministic.Server.DeterministicServer.DisconnectClient(Photon.Deterministic.Server.DeterministicPluginClient,System.String)">
+            <summary>
+            Disconnect a client.
+            </summary>
+            <param name="client">Client object</param>
+            <param name="message">Disconnect message</param>
+        </member>
+        <member name="M:Photon.Deterministic.Server.DeterministicServer.GetClientIds(System.Collections.Generic.List{System.String})">
+            <summary>
+            Retrieve a list of all client ids.
+            </summary>
+            <param name="clientIds">List that is filled with <see cref="F:Photon.Deterministic.Server.DeterministicPluginClient.ClientId"/></param>
+        </member>
+        <member name="M:Photon.Deterministic.Server.DeterministicServer.GetClientActorId(System.String)">
+            <summary>
+            Map a client id to an Photon actor id.
+            </summary>
+            <param name="clientId">Client id</param>
+            <returns>Actor id</returns>
+        </member>
+        <member name="M:Photon.Deterministic.Server.DeterministicServer.GetClientActorId(System.Int32)">
+            <summary>
+            Map a player index to an actor id.
+            </summary>
+            <param name="playerIndex"></param>
+            <returns>Actor id</returns>
+        </member>
+        <member name="M:Photon.Deterministic.Server.DeterministicServer.IsRealPlayer(System.Int32)">
+            <summary>
+            Check if the player index is valid and has or ever had a client connected.
+            </summary>
+            <param name="index">Player index</param>
+            <returns>True is the player is a valid and is backed by a client.</returns>
+        </member>
+        <member name="M:Photon.Deterministic.Server.DeterministicServer.GetClientForActor(System.Int32)">
+            <summary>
+            Retrieve the client object by actor number.
+            </summary>
+            <param name="actorNr">Actor id</param>
+            <returns>Client object</returns>
+        </member>
+        <member name="T:Photon.Deterministic.Server.DeterministicServer.SnapshotVars">
+            <summary>
+            Clients will individually time out the snapshot requests, the system will retry send requests to clients as long as clients are still waiting.
+            </summary>
+        </member>
+        <member name="F:Photon.Deterministic.Server.DeterministicServer.SnapshotVars.GameStart">
+            <summary>
+            Request a snapshot for late-joiners after this time (in seconds)
+            </summary>
+        </member>
+        <member name="F:Photon.Deterministic.Server.DeterministicServer.SnapshotVars.RequestTimeout">
+            <summary>
+            Timeout for a buddy snapshot request send to a client (in seconds)
+            </summary>
+        </member>
+        <member name="F:Photon.Deterministic.Server.DeterministicServer.SnapshotVars.WaitingTimeout">
+            <summary>
+            Timeout for clients waiting for snapshots (in seconds)
+            </summary>
+        </member>
+        <member name="F:Photon.Deterministic.Server.DeterministicServer.SnapshotVars.ChacheDuration">
+            <summary>
+            Cached snapshots will be discarded after this duration (in seconds)
+            </summary>
+        </member>
+        <member name="F:Photon.Deterministic.Server.DeterministicServer.SnapshotVars.LocalSnapshotAcceptanceTimeDefault">
+            <summary>
+            Local snapshot default acceptance time, after this a buddy snapshot is initiate (in seconds)
+            </summary>
+        </member>
+        <member name="F:Photon.Deterministic.Server.DeterministicServer.SnapshotVars.LocalSnapshotAcceptanceTimeMax">
+            <summary>
+            Local snapshot acceptance time max (prolonged by EmptyRoomTTL) (in seconds)
+            </summary>
+        </member>
+        <member name="M:Photon.Deterministic.Server.DeterministicServer.TrySendSnapshotToClients(System.Boolean)">
+            <summary>
+            Return true, if the the snapshots have been send to waiting clients or a buddy snapshot has been requested.
+            </summary>
+        </member>
+        <member name="T:Photon.Deterministic.Server.DeterministicPluginClient">
+            <summary>
+            The client representation in the Quantum server plugin.
+            </summary>
+            \ingroup CustomPlugin
+        </member>
+        <member name="F:Photon.Deterministic.Server.DeterministicPluginClient.Rtt">
+            <summary>
+            Last received round trip time for this client by <see cref="T:Photon.Deterministic.Protocol.RttUpdate"/>.
+            </summary>
+        </member>
+        <member name="F:Photon.Deterministic.Server.DeterministicPluginClient.ActorNr">
+            <summary>
+            The Photon Realtime client index (Actor) is assigned by the server after the client has joined a room.
+            The room is always ActorNr 0 and client the client numbering start with 1.
+            The server always increments the number over the lifetime of the room.
+            Clients that successfully RejoinAndReconnect() will receive the same ActorNr.
+            </summary>
+        </member>
+        <member name="F:Photon.Deterministic.Server.DeterministicPluginClient.WaitingForSnapshot">
+            <summary>
+            This client is connected but is waiting for a snapshot to be send by either other clients or the server.
+            </summary>
+        </member>
+        <member name="F:Photon.Deterministic.Server.DeterministicPluginClient.WaitingForSnapshotTimeoutTick">
+            <summary>
+            The tick when waiting for snapshots will time out and the client will be disconnected.
+            </summary>
+        </member>
+        <member name="F:Photon.Deterministic.Server.DeterministicPluginClient.UserToken">
+            <summary>
+            Attach any data you want to the client. For example something you want to cache while waiting for a HTTP response.
+            </summary>
+        </member>
+        <member name="F:Photon.Deterministic.Server.DeterministicPluginClient.DisconnectTime">
+            <summary>
+            Will be set to DeterministicPluginSession.GetTimerSeconds() + 1 when disconnecting the player.
+            This is also marks the client as disconnected in a few places.
+            </summary>
+        </member>
+        <member name="F:Photon.Deterministic.Server.DeterministicPluginClient.DisconnectMessage">
+            <summary>
+            The disconnect reason set from the server when disconnecting this client <see cref="T:Photon.Deterministic.Server.ErrorStrings"/>.
+            </summary>
+        </member>
+        <member name="F:Photon.Deterministic.Server.DeterministicPluginClient.ClientId">
+            <summary>
+            Client id is a secret between the client and the server. The client creates this id and other clients do not know this id.
+            It is used to match reconnecting player so they receive the same player index.
+            </summary>
+        </member>
+        <member name="F:Photon.Deterministic.Server.DeterministicPluginClient.PlayerSlots">
+            <summary>
+            The assigned player indicies (can be multiple if one client joines with more than one player slot in <see cref="T:Photon.Deterministic.Protocol.Join"/>) 
+            are masked into the unsigned long.
+            Can be zero when the client is in spectating mode (Quantum 2.1).
+            </summary>
+        </member>
+        <member name="F:Photon.Deterministic.Server.DeterministicPluginClient.PlayerSlotsArray">
+            <summary>
+             The assigned player indicies (like in <see cref="F:Photon.Deterministic.Server.DeterministicPluginClient.PlayerSlots"/>) in an array form.
+            </summary>
+        </member>
+        <member name="F:Photon.Deterministic.Server.DeterministicPluginClient.ProtocolSendQueue">
+            <summary>
+            Enqueue protocol messages which are sent to the client.
+            </summary>
+        </member>
+        <member name="P:Photon.Deterministic.Server.DeterministicPluginClient.Joined">
+            <summary>
+            Has the player sent the join message and has it been processed and a ClientId was set.
+            </summary>
+        </member>
+        <member name="P:Photon.Deterministic.Server.DeterministicPluginClient.Active">
+            <summary>
+            Client has joined, is not waiting for snapshots (anymore) and has not been disconnected. 
+            </summary>
+        </member>
+        <member name="P:Photon.Deterministic.Server.DeterministicPluginClient.Spectator">
+            <summary>
+            Is the client a spectator. Spectators have no player slots and can not send any input or commands.
+            </summary>
+        </member>
+        <member name="M:Photon.Deterministic.Server.DeterministicPluginClient.HasPlayerSlot(System.Int32)">
+            <summary>
+            Check if the client has the player index assigned.
+            </summary>
+            <param name="playerIndex">Player index</param>
+            <returns>True if the client has the player index assigned.</returns>
+        </member>
+        <member name="T:Photon.Deterministic.Server.DeterministicPluginSessionState">
+            <summary>
+            The state of the session.
+            </summary>
+        </member>
+        <member name="F:Photon.Deterministic.Server.DeterministicPluginSessionState.Idle">
+            <summary>
+            Not started
+            </summary>
+        </member>
+        <member name="F:Photon.Deterministic.Server.DeterministicPluginSessionState.Ready">
+            <summary>
+            Session about to start and waiting for the <see cref="F:Photon.Deterministic.DeterministicSessionConfig.SessionStartTimeout"/>
+            </summary>
+        </member>
+        <member name="F:Photon.Deterministic.Server.DeterministicPluginSessionState.Running">
+            <summary>
+            Session is running
+            </summary>
+        </member>
+        <member name="F:Photon.Deterministic.Server.DeterministicPluginSessionState.Shutdown">
+            <summary>
+            Session hat been stopped
+            </summary>
+        </member>
+        <member name="T:Photon.Deterministic.Server.DeterministicPluginSession">
+            <summary>
+            The session object of the Quantum server plugin. Only one session is being created by one <see cref="T:Photon.Deterministic.Server.DeterministicServer"/>.
+            </summary>
+        </member>
+        <member name="F:Photon.Deterministic.Server.DeterministicPluginSession.ProtocolVersion">
+            <summary>
+            Quantum protocol version
+            </summary>
+        </member>
+        <member name="F:Photon.Deterministic.Server.DeterministicPluginSession.Input">
+            <summary>
+            Input handling
+            </summary>
+        </member>
+        <member name="F:Photon.Deterministic.Server.DeterministicPluginSession.SessionConfig">
+            <summary>
+            The used deterministic session config
+            </summary>
+        </member>
+        <member name="F:Photon.Deterministic.Server.DeterministicPluginSession.RuntimeConfig">
+            <summary>
+            Serialized runtime config. Serialized because it is implemented in the code project and not in the Quantum libraries.
+            </summary>
+        </member>
+        <member name="F:Photon.Deterministic.Server.DeterministicPluginSession.State">
+            <summary>
+            State of the session.
+            </summary>
+        </member>
+        <member name="F:Photon.Deterministic.Server.DeterministicPluginSession.ReadyStateTime">
+            <summary>
+            The time when the session switched to the <see cref="F:Photon.Deterministic.Server.DeterministicPluginSessionState.Ready"/> state
+            </summary>
+        </member>
+        <member name="F:Photon.Deterministic.Server.DeterministicPluginSession.ChecksumErrorSent">
+            <summary>
+            Flag for remembering that a session error has already been sent.
+            </summary>
+        </member>
+        <member name="M:Photon.Deterministic.Server.DeterministicPluginSession.GetTimerSeconds">
+            <summary>
+            Get elapsed seconds since session creation.
+            </summary>
+            <returns>Elapsed time in seconds.</returns>
+        </member>
+        <member name="T:Photon.Deterministic.Server.SnapshotLoadBalancingWeight">
+            <summary>
+            least failed tries  / sec of gameplay * weight 0
+            least tries         / sec of gameplay * weight 1
+            least ReplacedInput / sec of gameplay * weight 2
+            lifetime
+            </summary>
+        </member>
+    </members>
+</doc>

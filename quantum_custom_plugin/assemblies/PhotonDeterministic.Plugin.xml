@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>PhotonDeterministic.Plugin</name>
+    </assembly>
+    <members>
+        <member name="T:Photon.Deterministic.DeterministicPlugin">
+            <summary>
+            Override the Quantum plugin class to create a custom server object.
+            </summary>
+            \ingroup CustomPlugin
+        </member>
+        <member name="P:Photon.Deterministic.DeterministicPlugin.Server">
+            <summary>
+            Server object that the plugin needs as an entry to call rudimentary callbacks.
+            </summary>
+        </member>
+        <member name="P:Photon.Deterministic.DeterministicPlugin.Name">
+            <summary>
+            Plugin name. This will correspond with the plugin name that the client selects when connecting to a room.
+            </summary>
+            <example><code>
+            RoomOptions roomOptions = new RoomOptions {
+              Plugins = new string[] { "QuantumPlugin" }
+            };
+            </code></example>
+        </member>
+        <member name="P:Photon.Deterministic.DeterministicPlugin.EmptyRoomTTL">
+            <summary>
+            Retrieve the EmptyRoomTTL value from GameProperties, return 0 when nothing was found.
+            </summary>
+        </member>
+        <member name="M:Photon.Deterministic.DeterministicPlugin.#ctor">
+            <summary>
+            Create a DeterministicPlugin instance which creates a new instance of <see cref="T:Photon.Deterministic.Server.DeterministicServer"/>
+            </summary>
+        </member>
+        <member name="M:Photon.Deterministic.DeterministicPlugin.#ctor(Photon.Deterministic.Server.Interface.IServer)">
+            <summary>
+            Create a DeterministicPlugin instance passing in a server object.
+            </summary>
+            <param name="server">Server object of type <see cref="T:Photon.Deterministic.Server.DeterministicServer"/></param>
+        </member>
+        <member name="M:Photon.Deterministic.DeterministicPlugin.LogInfo(System.String)">
+            <summary>
+            Directs log to PluginHost.
+            </summary>
+        </member>
+        <member name="M:Photon.Deterministic.DeterministicPlugin.LogFatal(System.String)">
+            <summary>
+            Directs log to PluginHost.
+            </summary>
+        </member>
+        <member name="M:Photon.Deterministic.DeterministicPlugin.LogWarning(System.String)">
+            <summary>
+            Directs log to PluginHost.
+            </summary>
+        </member>
+        <member name="M:Photon.Deterministic.DeterministicPlugin.LogError(System.String)">
+            <summary>
+            Directs log to PluginHost.
+            </summary>
+        </member>
+        <member name="M:Photon.Deterministic.DeterministicPlugin.LogException(System.Exception)">
+            <summary>
+            Directs log to PluginHost.
+            </summary>
+        </member>
+        <member name="M:Photon.Deterministic.DeterministicPlugin.Disconnect(System.Int32,System.String)">
+            <summary>
+            Removed the actor from the plugin host. Is automatically called when the DeterministicServer is closed.
+            </summary>
+            <param name="actorNr">Actor Number from DeterministicPluginClient.ActorNr</param>
+            <param name="message">Disconnect message</param>
+        </member>
+        <member name="T:Photon.Deterministic.DeterministicPluginFactory">
+            <summary>
+            The default Quantum plugin factory. Replace with custom implementation of <see cref="T:Photon.Hive.Plugin.IPluginFactory"/>.
+            Change the name accordingly in your Photon dashboard and in this file (Photon-Server\deploy\LoadBalancing\GameServer\bin\plugin.config) to run locally.
+            </summary>
+            \ingroup CustomPlugin
+        </member>
+    </members>
+</doc>
