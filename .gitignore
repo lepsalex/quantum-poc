@@ -66,3 +66,5 @@ Temporary Items
 
 ## Local Builds
 build
+quantum_custom_plugin/Photon-Server/deploy/Plugins/DeterministicPlugin/bin/
+quantum_custom_plugin/quantum.custom.plugin/obj/Debug/
