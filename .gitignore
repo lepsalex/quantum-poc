@@ -72,3 +72,4 @@ quantum_custom_plugin/quantum.custom.plugin/obj/Debug/
 ## Misc
 *.license
 **/log
+quantum_custom_plugin/quantum.custom.plugin/packages/

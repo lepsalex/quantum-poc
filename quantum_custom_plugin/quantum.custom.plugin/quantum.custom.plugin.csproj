@@ -25,7 +25,7 @@
     <StartAction>Program</StartAction>
     <StartProgram>$(MSBuildProjectDirectory)\..\Photon-Server\deploy\bin_Win64\PhotonSocketServer.exe</StartProgram>
     <StartArguments>/Debug LoadBalancing</StartArguments>
-    <StartWorkingDirectory>..\..\..\bin_Win64</StartWorkingDirectory>
+    <StartWorkingDirectory>$(MSBuildProjectDirectory)\..\Photon-Server\deploy\bin_Win64</StartWorkingDirectory>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -37,7 +37,7 @@
 	<StartAction>Program</StartAction>
     <StartProgram>$(MSBuildProjectDirectory)\..\Photon-Server\deploy\bin_Win64\PhotonSocketServer.exe</StartProgram>
     <StartArguments>/Debug LoadBalancing</StartArguments>
-    <StartWorkingDirectory>..\..\..\bin_Win64</StartWorkingDirectory>
+    <StartWorkingDirectory>$(MSBuildProjectDirectory)\..\Photon-Server\deploy\bin_Win64</StartWorkingDirectory>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
