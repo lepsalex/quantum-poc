@@ -778,7 +778,7 @@ PlayerSettings:
     Lumin: QUANTUM_2_0_OR_NEWER
     Nintendo Switch: QUANTUM_2_0_OR_NEWER
     PS4: QUANTUM_2_0_OR_NEWER
-    Standalone: QUANTUM_2_0_OR_NEWER
+    Standalone: QUANTUM_2_0_OR_NEWER;STARTER_ASSETS_PACKAGES_CHECKED
     WebGL: QUANTUM_2_0_OR_NEWER
     Windows Store Apps: QUANTUM_2_0_OR_NEWER
     XboxOne: QUANTUM_2_0_OR_NEWER
