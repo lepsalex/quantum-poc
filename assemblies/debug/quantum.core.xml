@@ -204,7 +204,7 @@
             <param name="inclusive">Set to true if positions exactly on a triangle edge or border are considered to be inside (default is false)</param>
             <returns>True if the position is on the navmesh</returns>
         </member>
-        <member name="M:Quantum.NavMesh.LineOfSight(Photon.Deterministic.FPVector3,Photon.Deterministic.FPVector3,Quantum.NavMeshRegionMask,System.Int32,System.Int32)">
+        <member name="M:Quantum.NavMesh.LineOfSight(Photon.Deterministic.FPVector3,Photon.Deterministic.FPVector3,Quantum.NavMeshRegionMask,System.Int32,System.Int32,System.Boolean)">
             <summary>
             Check line of sight inside the navmesh. This also works in 3D and creates a funnel through the navmesh triangles. Start and destination must be inside the navmesh.
             </summary>
@@ -213,6 +213,7 @@
             <param name="regionMask">Region mask to identify enabled or disabled regions</param>
             <param name="triangleStart">Optionally provide the triangle that the start position is on</param>
             <param name="triangleDestination">Optionally provide the triangle that the destination position is on</param>
+            <param name="considerCost">If the cost changes from triangle to triangle consider this non-line of sight</param>
             <returns>True if there is a unobstructed line of sight on the navmesh</returns>
         </member>
         <member name="M:Quantum.NavMesh.Raycast2D(Photon.Deterministic.FPVector2,Photon.Deterministic.FPVector2,Photon.Deterministic.FP,Quantum.NavMeshRegionMask,Quantum.MailboxSet8,Photon.Deterministic.FPVector2@)">
