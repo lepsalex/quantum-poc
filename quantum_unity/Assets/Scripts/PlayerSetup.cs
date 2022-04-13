@@ -1,6 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
-using ExitGames.Client.Photon.StructWrapping;
+using System;
 using Quantum;
 using UnityEngine;
 
@@ -9,6 +7,8 @@ public unsafe class PlayerSetup : MonoBehaviour
     private PlayerColor _playerColor;
     private Renderer _renderer;
 
+    // Called from OnEntityInstantiate
+    // Assigned via the inspector!
     public void Initialize()
     {
         var entityRef = GetComponent<EntityView>().EntityRef;
@@ -18,6 +18,11 @@ public unsafe class PlayerSetup : MonoBehaviour
         _renderer = GetComponentInChildren<Renderer>();
 
         _renderer.material.SetColor("_Color",
-            new Color(_playerColor.R.AsFloat, _playerColor.G.AsFloat, _playerColor.B.AsFloat, _playerColor.A.AsFloat));
+            new Color(convertRGB(_playerColor.R), convertRGB(_playerColor.G), convertRGB(_playerColor.B), convertRGB(_playerColor.A)));
+    }
+
+    private float convertRGB(Int32 value)
+    {
+        return value / 255f;
     }
 }

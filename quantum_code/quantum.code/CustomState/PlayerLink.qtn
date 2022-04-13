@@ -1,8 +1,8 @@
 struct PlayerColor {
-    FP R;
-    FP G;
-    FP B;
-    FP A;
+    Int32 R;
+    Int32 G;
+    Int32 B;
+    Int32 A;
 }
 
 component PlayerLink {

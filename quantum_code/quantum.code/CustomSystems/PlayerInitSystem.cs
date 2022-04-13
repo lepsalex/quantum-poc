@@ -50,7 +50,7 @@ namespace Quantum
             playerColor.R = GetRandomColorValue();
             playerColor.G = GetRandomColorValue();
             playerColor.B = GetRandomColorValue();
-            playerColor.A = 1;
+            playerColor.A = 255;
 
             return playerColor;
         }
