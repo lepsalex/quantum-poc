@@ -1,3 +1,11 @@
+struct PlayerColor {
+    FP R;
+    FP G;
+    FP B;
+    FP A;
+}
+
 component PlayerLink {
     player_ref PlayerRef;
+    PlayerColor Color;
 }
