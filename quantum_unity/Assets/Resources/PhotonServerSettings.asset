@@ -29,4 +29,4 @@ MonoBehaviour:
     EnableLobbyStatistics: 0
     NetworkLogging: 2
   PlayerTtlInSeconds: 0
-  EmptyRoomTtlInSeconds: 60
+  EmptyRoomTtlInSeconds: 3600
