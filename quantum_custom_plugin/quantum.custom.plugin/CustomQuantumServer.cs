@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using Photon.Deterministic;
@@ -158,6 +158,11 @@ namespace Quantum
         string path = Uri.UnescapeDataString(uri.Path);
         return Path.GetDirectoryName(path);
       }
+    }
+
+    public DeterministicFrame GetVerifiedFrame()
+    {
+      return container.Session.FrameVerified;
     }
 
     public void Dispose() {

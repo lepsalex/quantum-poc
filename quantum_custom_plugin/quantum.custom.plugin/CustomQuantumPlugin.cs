@@ -13,6 +13,7 @@ namespace Quantum {
     
     public override void OnCloseGame(ICloseGameCallInfo info) {
       _server.Dispose();
+      var lastFrame = (Frame) _server.GetVerifiedFrame();
       base.OnCloseGame(info);
     }
   }
