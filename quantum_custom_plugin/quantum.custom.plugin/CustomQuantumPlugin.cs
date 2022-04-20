@@ -5,7 +5,7 @@ using Photon.Hive.Plugin;
 using Quantum.CustomState;
 
 namespace Quantum {
-  public unsafe class CustomQuantumPlugin : DeterministicPlugin {
+  public class CustomQuantumPlugin : DeterministicPlugin {
     protected CustomQuantumServer _server;
 
     public CustomQuantumPlugin(IServer server) : base(server) {
@@ -20,11 +20,11 @@ namespace Quantum {
       
       foreach (var (entity, playerLink) in lastFrame.GetComponentIterator<PlayerLink>())
       {
-        if (lastFrame.Unsafe.TryGetPointer<Transform3D>(entity, out var playerTransform))
-        {
-          players.Add(new PlayerState(playerLink, *playerTransform));
-        }
+        var playerTransform = lastFrame.Get<Transform3D>(entity);
+        players.Add(new PlayerState(playerLink, playerTransform));
       }
+      
+      // Serialize and send players data to backend
       
       base.OnCloseGame(info);
     }
