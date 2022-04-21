@@ -61,7 +61,11 @@
     <Compile Include="Core\CodeGen.cs" />
     <Compile Include="CommandSetup.Legacy.cs" />
     <Compile Include="Core\Core.cs" />
+    <Compile Include="CustomState\Commands\CommandRestorePlayerStates.cs" />
+    <Compile Include="CustomState\Helpers\PlayerColorHelper.cs" />
+    <Compile Include="CustomState\PlayerState.cs" />
     <Compile Include="CustomSystems\MovementSystem.cs" />
+    <Compile Include="CustomSystems\PlayerCommandsSystem.cs" />
     <Compile Include="CustomSystems\PlayerDisconnectSystem.cs" />
     <Compile Include="CustomSystems\PlayerInitSystem.cs" />
     <Compile Include="CustomSystems\PlayerRespawnSystem.cs" />
@@ -77,9 +81,9 @@
     <EmbeddedResource Include="db.json" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="CustomState\Input.qtn" />
-    <Content Include="CustomState\PlayerLink.qtn" />
-    <Content Include="CustomState\Respawn.qtn" />
+    <Content Include="CustomState\DSL\Input.qtn" />
+    <Content Include="CustomState\DSL\PlayerLink.qtn" />
+    <Content Include="CustomState\DSL\Respawn.qtn" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

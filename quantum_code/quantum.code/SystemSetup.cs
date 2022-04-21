@@ -25,7 +25,8 @@ namespace Quantum {
         new PlayerInitSystem(),
         new MovementSystem(),
         new PlayerRespawnSystem(),
-        new PlayerDisconnectSystem()
+        new PlayerDisconnectSystem(),
+        new PlayerCommandsSystem()
       };
     }
   }

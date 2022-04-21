@@ -4,18 +4,26 @@ using System.IO;
 using Photon.Deterministic;
 using Photon.Deterministic.Protocol;
 using Photon.Deterministic.Server;
+using Quantum.CustomState.Commands;
 
 namespace Quantum
 {
   public class CustomQuantumServer : DeterministicServer, IDisposable
   {
+    private const string ServerClientId = "server";
+
     DeterministicSessionConfig config;
     RuntimeConfig runtimeConfig;
     SessionContainer container;
     readonly Dictionary<String, String> photonConfig;
     InputProvider inputProvider;
 
-    public CustomQuantumServer(Dictionary<String, String> photonConfig) { this.photonConfig = photonConfig; }
+    private DeterministicCommandSerializer _cmdSerializer;
+
+    public CustomQuantumServer(Dictionary<String, String> photonConfig)
+    {
+      this.photonConfig = photonConfig;
+    }
 
     // here we're just caching the match configs (Deterministic and Runtime) for the authoritative simulation (match result validation)
     // optionally, we could modify the passed parameters so to have the configs defined on the server itself
@@ -25,7 +33,8 @@ namespace Quantum
     }
 
     // same as comment on method above
-    public override void OnDeterministicRuntimeConfig(DeterministicPluginClient client, Photon.Deterministic.Protocol.RuntimeConfig configData)
+    public override void OnDeterministicRuntimeConfig(DeterministicPluginClient client,
+      Photon.Deterministic.Protocol.RuntimeConfig configData)
     {
       runtimeConfig = RuntimeConfig.FromByteArray(configData.Config);
     }
@@ -44,9 +53,11 @@ namespace Quantum
         {
           String lutPath = Path.Combine(PluginLocation, photonConfig["PathToLUTFolder"]);
           PluginHost.LogInfo($"LUT path: {lutPath}");
-          try {
+          try
+          {
             FPLut.Init(lutPath);
-          } catch (Exception e) {
+          } catch (Exception e)
+          {
             PluginHost.LogError($"Failed to load LUT files from {lutPath}");
             PluginHost.LogException(e);
           }
@@ -65,7 +76,7 @@ namespace Quantum
           {
             Native.Utils = SessionContainer.CreateNativeUtils();
           }
-          
+
           // need to call Loaded on all the assets
           _resourceManager = ResourceManagerStaticPreloaded.Create(assets, SessionContainer.CreateNativeAllocator());
         }
@@ -79,18 +90,20 @@ namespace Quantum
       // a "standalone/non unity" session container is used for simulations (game loops).
       container = new SessionContainer(configsFile);
       // Container requires access to the configs (through a replay file), the assets database, and input (either through replay file or through direct injection - see below)
-      var startParams = new QuantumGame.StartParameters {
+      var startParams = new QuantumGame.StartParameters
+      {
         AssetSerializer = _serializer,
         ResourceManager = _resourceManager
       };
 
       // calling Start() sets up everything in the container
       inputProvider = new InputProvider(config);
-      container.StartReplay(startParams, inputProvider, "server", false);
+      container.StartReplay(startParams, inputProvider, ServerClientId, false);
     }
 
     // Every time the plugin confirms input, we inject the confirmed data into the container, so server simulation can advance
-    public override void OnDeterministicInputConfirmed(DeterministicPluginClient client, int tick, int playerIndex, DeterministicTickInput input)
+    public override void OnDeterministicInputConfirmed(DeterministicPluginClient client, int tick, int playerIndex,
+      DeterministicTickInput input)
     {
       inputProvider.InjectInput(input, true);
     }
@@ -116,21 +129,22 @@ namespace Quantum
 
     public override void OnDeterministicUpdate()
     {
-      if (container == null) {
+      if (container == null)
+      {
         return;
       }
-      
+
       // advance the simulation to the latest injected input-set/tick
       if (container.Session.FrameVerified != null)
       {
         // server plugin game time
         double gameTime = Session.Input.GameTime;
         // server simulation non synced timed
-        var sessionTime = container.Session.AccumulatedTime + container.Session.FrameVerified.Number * container.Session.DeltaTimeDouble;
+        var sessionTime = container.Session.AccumulatedTime +
+                          container.Session.FrameVerified.Number * container.Session.DeltaTimeDouble;
         // try to update session to catch-up (will still be bound by input)
         container.Service(gameTime - sessionTime);
-      }
-      else
+      } else
       {
         container.Service();
       }
@@ -138,14 +152,50 @@ namespace Quantum
       //  PluginHost.LogInfo(container.Session.FramePredicted.Number + " " + container.Session.FramePredicted.CalculateChecksum());
     }
 
-    public override Boolean OnDeterministicSnapshotRequested(ref Int32 tick, ref byte[] data) {
-      if (container.Session.FramePredicted == null) {
+    public override Boolean OnDeterministicSnapshotRequested(ref Int32 tick, ref byte[] data)
+    {
+      if (container.Session.FramePredicted == null)
+      {
         // Too early for snapshots.
         return false;
       }
 
       tick = container.Session.FramePredicted.Number;
       data = container.Session.FramePredicted.Serialize(DeterministicFrameSerializeMode.Serialize);
+      return true;
+    }
+    
+    public override bool OnDeterministicCommand(DeterministicPluginClient client, Command cmd)
+    {
+      if (_cmdSerializer == null)
+      {
+        _cmdSerializer = new DeterministicCommandSerializer();
+        _cmdSerializer.RegisterFactories(DeterministicCommandSetup.GetCommandFactories(runtimeConfig, null));
+
+        _cmdSerializer.CommandSerializerStreamRead.Reading = true;
+        _cmdSerializer.CommandSerializerStreamWrite.Writing = true;
+      }
+
+      var stream = _cmdSerializer.CommandSerializerStreamRead;
+
+      stream.SetBuffer(cmd.Data);
+
+      if (_cmdSerializer.ReadNext(stream, out var command))
+      {
+        // handle CommandRestorePlayerStates
+        if (command is CommandRestorePlayerStates commandRestorePlayerStates)
+        {
+          // only allow this command to be executed by the server
+          if (!client.ClientId.Equals(ServerClientId))
+          {
+            return false;
+          }
+          
+          // execute command
+          commandRestorePlayerStates.Execute(GetVerifiedFrame());
+        }
+      }
+
       return true;
     }
 
@@ -160,47 +210,88 @@ namespace Quantum
       }
     }
 
-    public DeterministicFrame GetVerifiedFrame()
+    public Frame GetVerifiedFrame()
     {
-      return container.Session.FrameVerified;
+      return (Frame) container.Session.FrameVerified;
     }
 
-    public void Dispose() {
+    public void SendDeterministicCommand(DeterministicCommand cmd)
+    {
+      if (_cmdSerializer == null)
+      {
+        _cmdSerializer = new DeterministicCommandSerializer();
+        _cmdSerializer.RegisterFactories(DeterministicCommandSetup.GetCommandFactories(runtimeConfig, null));
+
+        _cmdSerializer.CommandSerializerStreamRead.Reading = true;
+        _cmdSerializer.CommandSerializerStreamWrite.Writing = true;
+      }
+
+      var stream = _cmdSerializer.CommandSerializerStreamWrite;
+
+      stream.Reset(stream.Capacity);
+
+      if (_cmdSerializer.PackNext(stream, cmd))
+      {
+        SendDeterministicCommand(new Command
+        {
+          Index = cmd.GetHashCode(),
+          Data = stream.ToArray(),
+        });
+
+        // optional: pool byte arrays and use them instead of allocating with ToArray()
+        // Buffer.BlockCopy(stream.Data, stream.Offset, pooledByteArray, 0, stream.BytesRequired);
+      }
+    }
+
+    public void Dispose()
+    {
       container?.Destroy();
       container = null;
     }
 
     // Loads the asset DB in json form from 1) disk file 2) the from embedded file
-    private byte[] LoadAssetDBData(string pathToDB, string embeddedDB) 
+    private byte[] LoadAssetDBData(string pathToDB, string embeddedDB)
     {
       byte[] assetDBFileContent = null;
 
       // Trying to load the asset db file from disk
-      if (string.IsNullOrEmpty(pathToDB) == false) {
-        if (File.Exists(pathToDB)) {
+      if (string.IsNullOrEmpty(pathToDB) == false)
+      {
+        if (File.Exists(pathToDB))
+        {
           PluginHost.LogInfo($"Loading Quantum AssetDB from file '{pathToDB}' ..");
           assetDBFileContent = File.ReadAllBytes(pathToDB);
           Assert.Always(assetDBFileContent != null);
-        } else {
+        } else
+        {
           PluginHost.LogInfo($"No asset db file found at '{pathToDB}'.");
         }
       }
 
       // Trying to load the asset db file from the assembly
-      if (assetDBFileContent == null) {
+      if (assetDBFileContent == null)
+      {
         PluginHost.LogInfo($"Loading Quantum AssetDB from internal resource '{embeddedDB}'");
-        using (var stream = typeof(QuantumGame).Assembly.GetManifestResourceStream(embeddedDB)) {
-          if (stream != null) {
-            if (stream.Length > 0) {
+        using (var stream = typeof(QuantumGame).Assembly.GetManifestResourceStream(embeddedDB))
+        {
+          if (stream != null)
+          {
+            if (stream.Length > 0)
+            {
               assetDBFileContent = new byte[stream.Length];
-              var bytesRead = stream.Read(assetDBFileContent, 0, (int)stream.Length);
-              Assert.Always(bytesRead == (int)stream.Length);
-            } else {
-              PluginHost.LogError($"The file '{embeddedDB}' in assembly '{typeof(QuantumGame).Assembly.FullName}' is empty.");
+              var bytesRead = stream.Read(assetDBFileContent, 0, (int) stream.Length);
+              Assert.Always(bytesRead == (int) stream.Length);
+            } else
+            {
+              PluginHost.LogError(
+                $"The file '{embeddedDB}' in assembly '{typeof(QuantumGame).Assembly.FullName}' is empty.");
             }
-          } else {
-            PluginHost.LogError($"Failed to find the Quantum AssetDB resource from '{embeddedDB}' in assembly '{typeof(QuantumGame).Assembly.FullName}'. Here are all resources found inside the assembly:");
-            foreach (var name in typeof(QuantumGame).Assembly.GetManifestResourceNames()) {
+          } else
+          {
+            PluginHost.LogError(
+              $"Failed to find the Quantum AssetDB resource from '{embeddedDB}' in assembly '{typeof(QuantumGame).Assembly.FullName}'. Here are all resources found inside the assembly:");
+            foreach (var name in typeof(QuantumGame).Assembly.GetManifestResourceNames())
+            {
               PluginHost.LogInfo(name);
             }
           }
