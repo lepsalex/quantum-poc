@@ -22,7 +22,7 @@ namespace Quantum
                 t->Position.X = 0 + playerRef;
             }
 
-            // link player and set a random color
+            // link player and set a color
             if (f.Unsafe.TryGetPointer<PlayerLink>(playerEntity, out var pl))
             {
                 pl->PlayerRef = playerRef;
