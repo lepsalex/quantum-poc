@@ -34,7 +34,7 @@ namespace Quantum.CustomState.Commands
                 t->Position.Z = PlayerZ;
             }
 
-            // link player and set a random color
+            // link player and set a color
             if (f.Unsafe.TryGetPointer<PlayerLink>(playerEntity, out var pl))
             {
                 pl->PlayerRef = PlayerRef;
