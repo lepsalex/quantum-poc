@@ -4,9 +4,10 @@ using Photon.Deterministic;
 namespace Quantum.CustomState
 {
     [Serializable]
-    public class PlayerState
+    public struct PlayerState
     {
         public PlayerRef PlayerRef;
+        public AssetRefEntityPrototype PlayerPrototype;
         public FP PlayerX;
         public FP PlayerY;
         public FP PlayerZ;

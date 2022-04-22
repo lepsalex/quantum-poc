@@ -61,7 +61,7 @@
     <Compile Include="Core\CodeGen.cs" />
     <Compile Include="CommandSetup.Legacy.cs" />
     <Compile Include="Core\Core.cs" />
-    <Compile Include="CustomState\Commands\CommandRestorePlayerStates.cs" />
+    <Compile Include="CustomState\Commands\CommandRestorePlayerState.cs" />
     <Compile Include="CustomState\Helpers\PlayerColorHelper.cs" />
     <Compile Include="CustomState\PlayerState.cs" />
     <Compile Include="CustomSystems\MovementSystem.cs" />

@@ -1,9 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using Newtonsoft.Json;
 using Photon.Deterministic;
 using Photon.Deterministic.Protocol;
 using Photon.Deterministic.Server;
+using Quantum.Core;
+using Quantum.CustomState;
 using Quantum.CustomState.Commands;
 
 namespace Quantum
@@ -99,6 +103,31 @@ namespace Quantum
       // calling Start() sets up everything in the container
       inputProvider = new InputProvider(config);
       container.StartReplay(startParams, inputProvider, ServerClientId, false);
+
+      // Get any existing state for the game (if it exists) and restore
+      var exampleStates =
+        "[{\"PlayerRef\":{\"_index\":1,\"IsValid\":true},\"PlayerPrototype\":{\"Id\":{\"Value\":204577573280856750,\"IsValid\":true,\"IsDynamic\":false}},\"PlayerX\":{\"RawValue\":-276878,\"AsLong\":-5,\"AsInt\":-5,\"AsShort\":-5,\"AsFloat\":-4.224823,\"AsDouble\":-4.224822998046875},\"PlayerY\":{\"RawValue\":65485,\"AsLong\":0,\"AsInt\":0,\"AsShort\":0,\"AsFloat\":0.9992218,\"AsDouble\":0.9992218017578125},\"PlayerZ\":{\"RawValue\":-290147,\"AsLong\":-5,\"AsInt\":-5,\"AsShort\":-5,\"AsFloat\":-4.427292,\"AsDouble\":-4.4272918701171875}}]";
+
+      var playerStates = JsonConvert.DeserializeObject<List<PlayerState>>(exampleStates);
+
+      var playerRestoreCommands = playerStates.Select(playerState => new CommandRestorePlayerState()
+      {
+        PlayerRef = playerState.PlayerRef,
+        PlayerPrototype = playerState.PlayerPrototype,
+        PlayerX = playerState.PlayerX,
+        PlayerY = playerState.PlayerY,
+        PlayerZ = playerState.PlayerZ
+      }).ToList();
+
+      foreach (var command in playerRestoreCommands)
+      {
+        SendDeterministicCommand(command);
+      }
+
+      // SendDeterministicCommand(new CompoundCommand()
+      // {
+      //   Commands = playerRestoreCommands.Cast<DeterministicCommand>().ToList()
+      // });
     }
 
     // Every time the plugin confirms input, we inject the confirmed data into the container, so server simulation can advance
@@ -164,7 +193,7 @@ namespace Quantum
       data = container.Session.FramePredicted.Serialize(DeterministicFrameSerializeMode.Serialize);
       return true;
     }
-    
+
     public override bool OnDeterministicCommand(DeterministicPluginClient client, Command cmd)
     {
       if (_cmdSerializer == null)
@@ -183,16 +212,10 @@ namespace Quantum
       if (_cmdSerializer.ReadNext(stream, out var command))
       {
         // handle CommandRestorePlayerStates
-        if (command is CommandRestorePlayerStates commandRestorePlayerStates)
+        if (command is CommandRestorePlayerState && !client.ClientId.Equals(ServerClientId))
         {
           // only allow this command to be executed by the server
-          if (!client.ClientId.Equals(ServerClientId))
-          {
-            return false;
-          }
-          
-          // execute command
-          commandRestorePlayerStates.Execute(GetVerifiedFrame());
+          return false;
         }
       }
 
@@ -234,7 +257,7 @@ namespace Quantum
       {
         SendDeterministicCommand(new Command
         {
-          Index = cmd.GetHashCode(),
+          Index = 0,
           Data = stream.ToArray(),
         });
 

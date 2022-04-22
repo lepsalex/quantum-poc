@@ -8,7 +8,7 @@ namespace Quantum
         {
             for (int i = 0; i < f.PlayerCount; i++)
             {
-                var command = f.GetPlayerCommand(i) as CommandRestorePlayerStates;
+                var command = f.GetPlayerCommand(i) as CommandRestorePlayerState;
                 command?.Execute(f);
             }
         }
