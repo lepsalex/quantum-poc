@@ -45,7 +45,7 @@ namespace Quantum
 
       var roomState = new RoomState()
       {
-        roomId = PluginHost.GameId,
+        roomId = BackendServer.DemoRoomName, // should use PluginHost.GameId but need to work on unity side for that
         playerStates = JsonConvert.SerializeObject(playerStates)
       };
 

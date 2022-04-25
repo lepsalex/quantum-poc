@@ -103,10 +103,11 @@ namespace Quantum
       container.StartReplay(startParams, inputProvider, ServerClientId, false);
 
       var pluginHost = (CustomQuantumPlugin) PluginHost;
+      var roomId = BackendServer.DemoRoomName; // should use pluginHost.PluginHost.GameId but need to work on unity side for that
 
       // Get any existing state for the game (if it exists) and restore
       var blockingRoomRestoreCall =
-        _backendServer.blockingRoomRestoreCall(pluginHost.PluginHost.GameId, this);
+        _backendServer.blockingRoomRestoreCall(roomId, this);
 
       pluginHost.PluginHost.HttpRequest(blockingRoomRestoreCall);
     }

@@ -18,6 +18,7 @@ namespace Quantum
   {
     public const string RootUrl = "http://localhost:8080";
     public const string RoomUrl = RootUrl + "/room";
+    public const string DemoRoomName = "alex-demo";
 
     public HttpRequest blockingRoomSaveCall(RoomState roomState)
     {
