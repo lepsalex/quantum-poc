@@ -102,11 +102,13 @@ namespace Quantum
       inputProvider = new InputProvider(config);
       container.StartReplay(startParams, inputProvider, ServerClientId, false);
 
+      var pluginHost = (CustomQuantumPlugin) PluginHost;
+
       // Get any existing state for the game (if it exists) and restore
       var blockingRoomRestoreCall =
-        _backendServer.blockingRoomRestoreCall("cc5df622-2214-4fbc-bd26-05611055e7a8", this);
-      
-      ((CustomQuantumPlugin) PluginHost).PluginHost.HttpRequest(blockingRoomRestoreCall);
+        _backendServer.blockingRoomRestoreCall(pluginHost.PluginHost.GameId, this);
+
+      pluginHost.PluginHost.HttpRequest(blockingRoomRestoreCall);
     }
 
     // Every time the plugin confirms input, we inject the confirmed data into the container, so server simulation can advance
