@@ -13,10 +13,13 @@ namespace Quantum
   {
     protected CustomQuantumServer _server;
 
+    private BackendServer _backendServer;
+
     public CustomQuantumPlugin(IServer server) : base(server)
     {
       Assert.Check(server is CustomQuantumServer);
       _server = (CustomQuantumServer) server;
+      _backendServer = new BackendServer();
     }
 
     public override void OnCloseGame(ICloseGameCallInfo info)
@@ -40,8 +43,15 @@ namespace Quantum
         });
       }
 
+      var roomState = new RoomState()
+      {
+        roomId = PluginHost.GameId,
+        playerStates = JsonConvert.SerializeObject(playerStates)
+      };
+
       // Serialize and send players data to backend
-      var roomStateJson = JsonConvert.SerializeObject(playerStates);
+      var blockingRoomSaveCall = _backendServer.blockingRoomSaveCall(roomState);
+      PluginHost.HttpRequest(blockingRoomSaveCall, info);
       
       // Dispose server and call base class
       _server.Dispose();

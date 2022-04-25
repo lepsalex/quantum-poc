@@ -63,7 +63,6 @@
     <Compile Include="Core\Core.cs" />
     <Compile Include="CustomState\Commands\CommandRestorePlayerState.cs" />
     <Compile Include="CustomState\Helpers\PlayerColorHelper.cs" />
-    <Compile Include="CustomState\PlayerState.cs" />
     <Compile Include="CustomSystems\MovementSystem.cs" />
     <Compile Include="CustomSystems\PlayerCommandsSystem.cs" />
     <Compile Include="CustomSystems\PlayerDisconnectSystem.cs" />
