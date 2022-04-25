@@ -52,7 +52,7 @@ namespace Quantum
       // Serialize and send players data to backend
       var blockingRoomSaveCall = _backendServer.blockingRoomSaveCall(roomState);
       PluginHost.HttpRequest(blockingRoomSaveCall, info);
-      
+
       // Dispose server and call base class
       _server.Dispose();
       base.OnCloseGame(info);

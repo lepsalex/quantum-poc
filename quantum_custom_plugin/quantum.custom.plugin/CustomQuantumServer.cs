@@ -1,13 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using Newtonsoft.Json;
 using Photon.Deterministic;
 using Photon.Deterministic.Protocol;
 using Photon.Deterministic.Server;
-using Quantum.Core;
-using Quantum.CustomState;
 using Quantum.CustomState.Commands;
 
 namespace Quantum
@@ -23,10 +19,12 @@ namespace Quantum
     InputProvider inputProvider;
 
     private DeterministicCommandSerializer _cmdSerializer;
+    private BackendServer _backendServer;
 
     public CustomQuantumServer(Dictionary<String, String> photonConfig)
     {
       this.photonConfig = photonConfig;
+      _backendServer = new BackendServer();
     }
 
     // here we're just caching the match configs (Deterministic and Runtime) for the authoritative simulation (match result validation)
@@ -105,29 +103,10 @@ namespace Quantum
       container.StartReplay(startParams, inputProvider, ServerClientId, false);
 
       // Get any existing state for the game (if it exists) and restore
-      var exampleStates =
-        "[{\"PlayerRef\":{\"_index\":1,\"IsValid\":true},\"PlayerPrototype\":{\"Id\":{\"Value\":204577573280856750,\"IsValid\":true,\"IsDynamic\":false}},\"PlayerX\":{\"RawValue\":-276878,\"AsLong\":-5,\"AsInt\":-5,\"AsShort\":-5,\"AsFloat\":-4.224823,\"AsDouble\":-4.224822998046875},\"PlayerY\":{\"RawValue\":65485,\"AsLong\":0,\"AsInt\":0,\"AsShort\":0,\"AsFloat\":0.9992218,\"AsDouble\":0.9992218017578125},\"PlayerZ\":{\"RawValue\":-290147,\"AsLong\":-5,\"AsInt\":-5,\"AsShort\":-5,\"AsFloat\":-4.427292,\"AsDouble\":-4.4272918701171875}}]";
-
-      var playerStates = JsonConvert.DeserializeObject<List<PlayerState>>(exampleStates);
-
-      var playerRestoreCommands = playerStates.Select(playerState => new CommandRestorePlayerState()
-      {
-        PlayerRef = playerState.PlayerRef,
-        PlayerPrototype = playerState.PlayerPrototype,
-        PlayerX = playerState.PlayerX,
-        PlayerY = playerState.PlayerY,
-        PlayerZ = playerState.PlayerZ
-      }).ToList();
-
-      foreach (var command in playerRestoreCommands)
-      {
-        SendDeterministicCommand(command);
-      }
-
-      // SendDeterministicCommand(new CompoundCommand()
-      // {
-      //   Commands = playerRestoreCommands.Cast<DeterministicCommand>().ToList()
-      // });
+      var blockingRoomRestoreCall =
+        _backendServer.blockingRoomRestoreCall("cc5df622-2214-4fbc-bd26-05611055e7a8", this);
+      
+      ((CustomQuantumPlugin) PluginHost).PluginHost.HttpRequest(blockingRoomRestoreCall);
     }
 
     // Every time the plugin confirms input, we inject the confirmed data into the container, so server simulation can advance
