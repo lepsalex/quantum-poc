@@ -4,6 +4,7 @@ using System.IO;
 using Photon.Deterministic;
 using Photon.Deterministic.Protocol;
 using Photon.Deterministic.Server;
+using Photon.Hive.Plugin;
 using Quantum.CustomState.Commands;
 
 namespace Quantum
@@ -107,10 +108,10 @@ namespace Quantum
       var roomId = BackendServer.DemoRoomName; // should use pluginHost.PluginHost.GameId but need to work on unity side for that
 
       // Get any existing state for the game (if it exists) and restore
-      var blockingRoomRestoreCall =
-        _backendServer.blockingRoomRestoreCall(roomId, this);
+      var roomRestoreCall =
+        _backendServer.roomRestoreCall(roomId, this);
 
-      pluginHost.PluginHost.HttpRequest(blockingRoomRestoreCall);
+      pluginHost.PluginHost.HttpRequest(roomRestoreCall);
     }
 
     // Every time the plugin confirms input, we inject the confirmed data into the container, so server simulation can advance

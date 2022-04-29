@@ -36,7 +36,7 @@ namespace Quantum
       };
     }
 
-    public HttpRequest blockingRoomRestoreCall(string roomId, CustomQuantumServer server)
+    public HttpRequest roomRestoreCall(string roomId, CustomQuantumServer server)
     {
       return new HttpRequest()
       {
@@ -48,9 +48,11 @@ namespace Quantum
         {
           if (response.Status.Equals(HttpRequestQueueResult.Success))
           {
+            // Get PlayerState list from JSON Response
             var roomState = JsonConvert.DeserializeObject<RoomState>(response.ResponseText);
             var playerStates = JsonConvert.DeserializeObject<List<PlayerState>>(roomState.playerStates);
-            
+
+            // Map PlayerState to CommandRestorePlayerState
             var playerRestoreCommands = playerStates.Select(playerState => new CommandRestorePlayerState()
             {
               PlayerRef = playerState.PlayerRef,
@@ -58,8 +60,9 @@ namespace Quantum
               PlayerX = playerState.PlayerX,
               PlayerY = playerState.PlayerY,
               PlayerZ = playerState.PlayerZ
-            }).ToList();
+            });
 
+            // Send commands in sequence
             foreach (var command in playerRestoreCommands)
             {
               server.SendDeterministicCommand(command);
