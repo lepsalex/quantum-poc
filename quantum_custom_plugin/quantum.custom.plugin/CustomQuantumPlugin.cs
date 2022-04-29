@@ -23,7 +23,7 @@ namespace Quantum
     }
 
     public override void OnCloseGame(ICloseGameCallInfo info)
-    {;
+    {
       var lastFrame = _server.GetVerifiedFrame();
       var playerStates = new List<PlayerState>();
 

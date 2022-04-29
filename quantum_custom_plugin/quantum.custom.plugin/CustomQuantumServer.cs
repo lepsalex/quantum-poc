@@ -91,6 +91,7 @@ namespace Quantum
 
       // a "standalone/non unity" session container is used for simulations (game loops).
       container = new SessionContainer(configsFile);
+      
       // Container requires access to the configs (through a replay file), the assets database, and input (either through replay file or through direct injection - see below)
       var startParams = new QuantumGame.StartParameters
       {
