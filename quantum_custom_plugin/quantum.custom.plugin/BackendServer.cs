@@ -20,7 +20,7 @@ namespace Quantum
     public const string RoomUrl = RootUrl + "/room";
     public const string DemoRoomName = "alex-demo";
 
-    public HttpRequest blockingRoomSaveCall(RoomState roomState)
+    public HttpRequest roomSaveCall(RoomState roomState)
     {
       var stream = new MemoryStream();
       var data = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(roomState));
@@ -40,7 +40,7 @@ namespace Quantum
     {
       return new HttpRequest()
       {
-        Async = false,
+        Async = true,
         Url = $"{RoomUrl}/{roomId}",
         Method = "GET",
         ContentType = "application/json",
@@ -65,14 +65,8 @@ namespace Quantum
             // Send commands in sequence
             foreach (var command in playerRestoreCommands)
             {
-              server.SendDeterministicCommand(command);
+              server.startupCommands.Add(command);
             }
-            
-            // THIS WOULD BE NICER MAYBE?
-            // SendDeterministicCommand(new CompoundCommand()
-            // {
-            //   Commands = playerRestoreCommands.Cast<DeterministicCommand>().ToList()
-            // });
           }
         })
       };

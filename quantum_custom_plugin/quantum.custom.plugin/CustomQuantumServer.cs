@@ -18,9 +18,12 @@ namespace Quantum
     SessionContainer container;
     readonly Dictionary<String, String> photonConfig;
     InputProvider inputProvider;
-
+    
     private DeterministicCommandSerializer _cmdSerializer;
     private BackendServer _backendServer;
+    
+    // Startup commands generated via an http call to our backend (see CustomQuantumPlugin::OnCreateGame)
+    public List<DeterministicCommand> startupCommands { get; private set; }
 
     public CustomQuantumServer(Dictionary<String, String> photonConfig)
     {
@@ -101,17 +104,21 @@ namespace Quantum
       };
 
       // calling Start() sets up everything in the container
-      inputProvider = new InputProvider(config);
+      inputProvider = new InputProvider(config); 
+      
       container.StartReplay(startParams, inputProvider, ServerClientId, false);
 
-      var pluginHost = (CustomQuantumPlugin) PluginHost;
-      var roomId = BackendServer.DemoRoomName; // should use pluginHost.PluginHost.GameId but need to work on unity side for that
-
-      // Get any existing state for the game (if it exists) and restore
-      var roomRestoreCall =
-        _backendServer.roomRestoreCall(roomId, this);
-
-      pluginHost.PluginHost.HttpRequest(roomRestoreCall);
+      // Send startupCommands in sequence (if empty nothing will happen here)
+      foreach (var command in startupCommands)
+      {
+        SendDeterministicCommand(command);
+      }
+            
+      // TODO: THIS WOULD BE NICER MAYBE?
+      // SendDeterministicCommand(new CompoundCommand()
+      // {
+      //   Commands = playerRestoreCommands.Cast<DeterministicCommand>().ToList()
+      // });
     }
 
     // Every time the plugin confirms input, we inject the confirmed data into the container, so server simulation can advance

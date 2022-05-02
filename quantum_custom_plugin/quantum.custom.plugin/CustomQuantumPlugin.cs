@@ -22,6 +22,17 @@ namespace Quantum
       _backendServer = new BackendServer();
     }
 
+    public override void OnCreateGame(ICreateGameCallInfo info)
+    {
+      // should use pluginHost.PluginHost.GameId instead of BackendServer.DemoRoomName but need to work on unity side for that
+      var roomRestoreRequest = _backendServer.roomRestoreCall(BackendServer.DemoRoomName, _server);
+      
+      PluginHost.HttpRequest(roomRestoreRequest, info);
+      
+      // TODO: figure out how to defer this
+      // base.OnCreateGame(info);
+    }
+
     public override void OnCloseGame(ICloseGameCallInfo info)
     {
       var lastFrame = _server.GetVerifiedFrame();
@@ -50,7 +61,7 @@ namespace Quantum
       };
 
       // Serialize and send players data to backend
-      var blockingRoomSaveCall = _backendServer.blockingRoomSaveCall(roomState);
+      var blockingRoomSaveCall = _backendServer.roomSaveCall(roomState);
       PluginHost.HttpRequest(blockingRoomSaveCall, info);
 
       // Dispose server and call base class
