@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Newtonsoft.Json;
 using Photon.Deterministic;
 using Photon.Deterministic.Protocol;
@@ -25,13 +26,41 @@ namespace Quantum
     public override void OnCreateGame(ICreateGameCallInfo info)
     {
       // should use pluginHost.PluginHost.GameId instead of BackendServer.DemoRoomName but need to work on unity side for that
-      var roomRestoreRequest = _backendServer.roomRestoreCall(BackendServer.DemoRoomName, _server);
+      var roomId = BackendServer.DemoRoomName;
       
+      // make the http request with the provided callback that defers continuing until after the data is loaded
+      var roomRestoreRequest = _backendServer.roomRestoreRequest(roomId, OnCreateGameCallback);
       PluginHost.HttpRequest(roomRestoreRequest, info);
-      
-      // TODO: figure out how to defer this
-      // base.OnCreateGame(info);
     }
+
+    private void OnCreateGameCallback(IHttpResponse response, object state)
+    {
+      if (response.Status.Equals(HttpRequestQueueResult.Success))
+      {
+        // Get PlayerState list from JSON Response
+        var roomState = JsonConvert.DeserializeObject<RoomState>(response.ResponseText);
+        var playerStates = JsonConvert.DeserializeObject<List<PlayerState>>(roomState.playerStates);
+
+        // Map PlayerState to CommandRestorePlayerState
+        var playerRestoreCommands = playerStates.Select(playerState => new CommandRestorePlayerState()
+        {
+          PlayerRef = playerState.PlayerRef,
+          PlayerPrototype = playerState.PlayerPrototype,
+          PlayerX = playerState.PlayerX,
+          PlayerY = playerState.PlayerY,
+          PlayerZ = playerState.PlayerZ
+        });
+
+        // Send commands in sequence
+        foreach (var command in playerRestoreCommands)
+        {
+          _server.StartupCommands.Add(command);
+        }
+      }
+      
+      base.OnCreateGame((ICreateGameCallInfo) response.CallInfo);
+    }
+
 
     public override void OnCloseGame(ICloseGameCallInfo info)
     {
@@ -61,7 +90,7 @@ namespace Quantum
       };
 
       // Serialize and send players data to backend
-      var blockingRoomSaveCall = _backendServer.roomSaveCall(roomState);
+      var blockingRoomSaveCall = _backendServer.roomSaveRequest(roomState);
       PluginHost.HttpRequest(blockingRoomSaveCall, info);
 
       // Dispose server and call base class

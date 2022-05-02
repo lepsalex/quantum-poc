@@ -18,12 +18,12 @@ namespace Quantum
     SessionContainer container;
     readonly Dictionary<String, String> photonConfig;
     InputProvider inputProvider;
-    
+
     private DeterministicCommandSerializer _cmdSerializer;
     private BackendServer _backendServer;
-    
+
     // Startup commands generated via an http call to our backend (see CustomQuantumPlugin::OnCreateGame)
-    public List<DeterministicCommand> startupCommands { get; private set; }
+    public List<DeterministicCommand> StartupCommands { get; } = new List<DeterministicCommand>();
 
     public CustomQuantumServer(Dictionary<String, String> photonConfig)
     {
@@ -95,7 +95,7 @@ namespace Quantum
 
       // a "standalone/non unity" session container is used for simulations (game loops).
       container = new SessionContainer(configsFile);
-      
+
       // Container requires access to the configs (through a replay file), the assets database, and input (either through replay file or through direct injection - see below)
       var startParams = new QuantumGame.StartParameters
       {
@@ -104,16 +104,16 @@ namespace Quantum
       };
 
       // calling Start() sets up everything in the container
-      inputProvider = new InputProvider(config); 
-      
+      inputProvider = new InputProvider(config);
+
       container.StartReplay(startParams, inputProvider, ServerClientId, false);
 
       // Send startupCommands in sequence (if empty nothing will happen here)
-      foreach (var command in startupCommands)
+      foreach (var command in StartupCommands)
       {
         SendDeterministicCommand(command);
       }
-            
+
       // TODO: THIS WOULD BE NICER MAYBE?
       // SendDeterministicCommand(new CompoundCommand()
       // {

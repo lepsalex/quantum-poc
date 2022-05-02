@@ -20,12 +20,12 @@ namespace Quantum
     public const string RoomUrl = RootUrl + "/room";
     public const string DemoRoomName = "alex-demo";
 
-    public HttpRequest roomSaveCall(RoomState roomState)
+    public HttpRequest roomSaveRequest(RoomState roomState)
     {
       var stream = new MemoryStream();
       var data = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(roomState));
       stream.Write(data, 0, data.Length);
-      
+
       return new HttpRequest()
       {
         Async = false,
@@ -36,39 +36,15 @@ namespace Quantum
       };
     }
 
-    public HttpRequest roomRestoreCall(string roomId, CustomQuantumServer server)
+    public HttpRequest roomRestoreRequest(string roomId, HttpRequestCallback onResponseCallback)
     {
       return new HttpRequest()
       {
-        Async = true,
+        Async = false,
         Url = $"{RoomUrl}/{roomId}",
         Method = "GET",
         ContentType = "application/json",
-        Callback = ((response, state) =>
-        {
-          if (response.Status.Equals(HttpRequestQueueResult.Success))
-          {
-            // Get PlayerState list from JSON Response
-            var roomState = JsonConvert.DeserializeObject<RoomState>(response.ResponseText);
-            var playerStates = JsonConvert.DeserializeObject<List<PlayerState>>(roomState.playerStates);
-
-            // Map PlayerState to CommandRestorePlayerState
-            var playerRestoreCommands = playerStates.Select(playerState => new CommandRestorePlayerState()
-            {
-              PlayerRef = playerState.PlayerRef,
-              PlayerPrototype = playerState.PlayerPrototype,
-              PlayerX = playerState.PlayerX,
-              PlayerY = playerState.PlayerY,
-              PlayerZ = playerState.PlayerZ
-            });
-
-            // Send commands in sequence
-            foreach (var command in playerRestoreCommands)
-            {
-              server.startupCommands.Add(command);
-            }
-          }
-        })
+        Callback = onResponseCallback
       };
     }
   }
