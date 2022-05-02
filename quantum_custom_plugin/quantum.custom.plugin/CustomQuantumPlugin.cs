@@ -2,7 +2,6 @@
 using System.Linq;
 using Newtonsoft.Json;
 using Photon.Deterministic;
-using Photon.Deterministic.Protocol;
 using Photon.Deterministic.Server.Interface;
 using Photon.Hive.Plugin;
 using Quantum.CustomState;
@@ -27,7 +26,7 @@ namespace Quantum
     {
       // should use pluginHost.PluginHost.GameId instead of BackendServer.DemoRoomName but need to work on unity side for that
       var roomId = BackendServer.DemoRoomName;
-      
+
       // make the http request with the provided callback that defers continuing until after the data is loaded
       var roomRestoreRequest = _backendServer.roomRestoreRequest(roomId, OnCreateGameCallback);
       PluginHost.HttpRequest(roomRestoreRequest, info);
@@ -57,7 +56,7 @@ namespace Quantum
           _server.StartupCommands.Add(command);
         }
       }
-      
+
       base.OnCreateGame((ICreateGameCallInfo) response.CallInfo);
     }
 
@@ -90,12 +89,17 @@ namespace Quantum
       };
 
       // Serialize and send players data to backend
-      var blockingRoomSaveCall = _backendServer.roomSaveRequest(roomState);
-      PluginHost.HttpRequest(blockingRoomSaveCall, info);
+      var roomSaveRequest = _backendServer.roomSaveRequest(roomState, OnCloseGameCallback);
+      PluginHost.HttpRequest(roomSaveRequest, info);
+    }
+
+    private void OnCloseGameCallback(IHttpResponse response, object state)
+    {
+      // TODO: Handle request issues/retries here
 
       // Dispose server and call base class
       _server.Dispose();
-      base.OnCloseGame(info);
+      base.OnCloseGame((ICloseGameCallInfo) response.CallInfo);
     }
   }
 }

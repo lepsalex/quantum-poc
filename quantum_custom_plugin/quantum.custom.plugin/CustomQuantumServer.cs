@@ -4,7 +4,6 @@ using System.IO;
 using Photon.Deterministic;
 using Photon.Deterministic.Protocol;
 using Photon.Deterministic.Server;
-using Photon.Hive.Plugin;
 using Quantum.CustomState.Commands;
 
 namespace Quantum
@@ -114,10 +113,10 @@ namespace Quantum
         SendDeterministicCommand(command);
       }
 
-      // TODO: THIS WOULD BE NICER MAYBE?
+      // // TODO: THIS WOULD BE NICER MAYBE?
       // SendDeterministicCommand(new CompoundCommand()
       // {
-      //   Commands = playerRestoreCommands.Cast<DeterministicCommand>().ToList()
+      //   Commands = StartupCommands
       // });
     }
 

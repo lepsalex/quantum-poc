@@ -1,16 +1,8 @@
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Net.Mime;
 using System.Text;
 using Newtonsoft.Json;
-using Photon.Deterministic.Server;
 using Photon.Hive.Plugin;
 using Quantum.CustomState;
-using Quantum.CustomState.Commands;
 
 namespace Quantum
 {
@@ -20,7 +12,7 @@ namespace Quantum
     public const string RoomUrl = RootUrl + "/room";
     public const string DemoRoomName = "alex-demo";
 
-    public HttpRequest roomSaveRequest(RoomState roomState)
+    public HttpRequest roomSaveRequest(RoomState roomState, HttpRequestCallback onResponseCallback)
     {
       var stream = new MemoryStream();
       var data = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(roomState));
@@ -32,7 +24,8 @@ namespace Quantum
         Url = RoomUrl,
         Method = "POST",
         ContentType = "application/json",
-        DataStream = stream
+        DataStream = stream,
+        Callback = onResponseCallback
       };
     }
 
