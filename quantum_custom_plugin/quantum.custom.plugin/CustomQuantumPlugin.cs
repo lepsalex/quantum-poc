@@ -111,6 +111,12 @@ namespace Quantum
     public override void OnCloseGame(ICloseGameCallInfo info)
     {
       var lastFrame = _server.GetVerifiedFrame();
+
+      if (lastFrame == null)
+      {
+        return;
+      }
+      
       var playerStates = new List<PlayerState>();
 
       foreach (var (entity, playerLink) in lastFrame.GetComponentIterator<PlayerLink>())

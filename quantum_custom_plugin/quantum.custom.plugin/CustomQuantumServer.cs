@@ -225,7 +225,7 @@ namespace Quantum
 
     public Frame GetVerifiedFrame()
     {
-      return (Frame) container.Session.FrameVerified;
+      return (Frame) container?.Session?.FrameVerified;
     }
 
     public void SendDeterministicCommand(DeterministicCommand cmd)
