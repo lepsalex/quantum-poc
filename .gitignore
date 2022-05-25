@@ -73,3 +73,7 @@ quantum_custom_plugin/quantum.custom.plugin/obj/Debug/
 *.license
 **/log
 quantum_custom_plugin/quantum.custom.plugin/packages/
+
+quantum_unity/.idea/.idea.quantum_unity/.idea/
+
+quantum_custom_plugin/.idea/.idea.quantum_custom/.idea/
