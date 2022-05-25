@@ -26,10 +26,7 @@ namespace Quantum
 
     public override void OnCreateGame(ICreateGameCallInfo info)
     {
-      // in the real appm we wll use custom auth that will give us access to
-      // info.authCookie which we can pass to the backend again to auth room join
-      // ref: https://doc.photonengine.com/en-us/pun/current/connection-and-authentication/authentication/custom-authentication
-      var userAuthToken = info.Nickname;
+      var userAuthToken = (string) info.AuthCookie["Token"];
 
       // should use PluginHost.GameId instead of BackendServer.DemoRoomName but need to work on unity side for that
       var roomId = BackendServer.DemoRoomName;
@@ -77,10 +74,7 @@ namespace Quantum
 
     public override void BeforeJoin(IBeforeJoinGameCallInfo info)
     {
-      // in the real appm we wll use custom auth that will give us access to
-      // info.authCookie which we can pass to the backend again to auth room join
-      // ref: https://doc.photonengine.com/en-us/pun/current/connection-and-authentication/authentication/custom-authentication
-      var userAuthToken = info.Nickname;
+      var userAuthToken = (string) info.AuthCookie["Token"];
 
       // should use PluginHost.GameId instead of BackendServer.DemoRoomName but need to work on unity side for that
       var roomId = BackendServer.DemoRoomName;
