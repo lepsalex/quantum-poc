@@ -18,10 +18,10 @@ MonoBehaviour:
     AppIdChat: 
     AppIdVoice: 
     AppVersion: 1.0
-    UseNameServer: 1
+    UseNameServer: 0
     FixedRegion: 
-    Server: 
-    Port: 0
+    Server: 172.26.208.1
+    Port: 5055
     ProxyServer: 
     Protocol: 0
     EnableProtocolFallback: 1
