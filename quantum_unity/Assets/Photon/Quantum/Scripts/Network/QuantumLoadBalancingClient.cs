@@ -6,47 +6,63 @@ using UnityEngine;
 // Migration from PUN to Realtime:
 // - AutoJoinLobby must be done by hand: call LoadBalancingClient.OpJoinLobby(null); when OnConnectedToMaster()
 // - Room list is not cached and is send in chunks, see UILobby.UpdateRoomList()
-public class QuantumLoadBalancingClient : LoadBalancingClient, IConnectionCallbacks {
-  public static string BestRegionSummaryKey = "Quantum_BestRegionSummary";
-  public QuantumLoadBalancingClient(ConnectionProtocol protocol = ConnectionProtocol.Udp) : base(protocol) {
-    ConnectionCallbackTargets.Add(this);
+public class QuantumLoadBalancingClient : LoadBalancingClient, IConnectionCallbacks
+{
+    public static string BestRegionSummaryKey = "Quantum_BestRegionSummary";
 
-    LoadBalancingPeer.SentCountAllowance = 9;
-  }
- 
-  public virtual bool ConnectUsingSettings(AppSettings appSettings, string nickname) {
+    public QuantumLoadBalancingClient(ConnectionProtocol protocol = ConnectionProtocol.Udp) : base(protocol)
+    {
+        ConnectionCallbackTargets.Add(this);
 
-    LocalPlayer.NickName = nickname;
-
-    if (string.IsNullOrEmpty(appSettings.FixedRegion)) {
-      // Hand in the last ping summary to chose best region more quickly.
-      appSettings.BestRegionSummaryFromStorage = PlayerPrefs.GetString(BestRegionSummaryKey);
+        LoadBalancingPeer.SentCountAllowance = 9;
     }
 
-    return ConnectUsingSettings(appSettings);
+    public virtual bool ConnectUsingSettings(AppSettings appSettings, string nickname)
+    {
+        LocalPlayer.NickName = nickname;
 
-  }
+        AuthenticationValues authValues = new AuthenticationValues();
+        authValues.AuthType = CustomAuthenticationType.Custom;
+        // TODO: temp just posting the nickname, should be a token with userId and wtv else we need
+        authValues.SetAuthPostData(nickname);
+        this.AuthValues = authValues;
 
-  public void OnConnected() {
-  }
+        if (string.IsNullOrEmpty(appSettings.FixedRegion))
+        {
+            // Hand in the last ping summary to chose best region more quickly.
+            appSettings.BestRegionSummaryFromStorage = PlayerPrefs.GetString(BestRegionSummaryKey);
+        }
 
-  public void OnConnectedToMaster() {
-    // Save the latest ping summary to the disk.
-    if (!string.IsNullOrEmpty(SummaryToCache)) {
-      PlayerPrefs.SetString(BestRegionSummaryKey, SummaryToCache);
-      SummaryToCache = null;
+        return ConnectUsingSettings(appSettings);
     }
-  }
 
-  public void OnDisconnected(DisconnectCause cause) {
-  }
+    public void OnConnected()
+    {
+    }
 
-  public void OnRegionListReceived(RegionHandler regionHandler) {
-  }
+    public void OnConnectedToMaster()
+    {
+        // Save the latest ping summary to the disk.
+        if (!string.IsNullOrEmpty(SummaryToCache))
+        {
+            PlayerPrefs.SetString(BestRegionSummaryKey, SummaryToCache);
+            SummaryToCache = null;
+        }
+    }
 
-  public void OnCustomAuthenticationResponse(Dictionary<string, object> data) {
-  }
+    public void OnDisconnected(DisconnectCause cause)
+    {
+    }
 
-  public void OnCustomAuthenticationFailed(string debugMessage) {
-  }
+    public void OnRegionListReceived(RegionHandler regionHandler)
+    {
+    }
+
+    public void OnCustomAuthenticationResponse(Dictionary<string, object> data)
+    {
+    }
+
+    public void OnCustomAuthenticationFailed(string debugMessage)
+    {
+    }
 }
