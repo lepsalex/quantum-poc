@@ -149,10 +149,10 @@ namespace Quantum
           Log.Debug("Room save request successful!");
           break;
         case 401:
-          Log.Debug("Room save request unauthorized!");
+          Log.Warn("Room save request unauthorized!");
           break;
         case 403:
-          Log.Debug("Room save request forbidden!");
+          Log.Warn("Room save request forbidden!");
           break;
       }
 
