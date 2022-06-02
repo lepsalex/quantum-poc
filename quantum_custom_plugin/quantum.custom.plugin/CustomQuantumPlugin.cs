@@ -16,12 +16,14 @@ namespace Quantum
     protected CustomQuantumServer _server;
 
     private BackendServer _backendServer;
+    private Action<string> _onCloseFactoryAction;
 
-    public CustomQuantumPlugin(IServer server) : base(server)
+    public CustomQuantumPlugin(IServer server, Action<string> onCloseFactoryAction) : base(server)
     {
       Assert.Check(server is CustomQuantumServer);
       _server = (CustomQuantumServer) server;
       _backendServer = new BackendServer();
+      _onCloseFactoryAction = onCloseFactoryAction;
     }
 
     public override void OnCreateGame(ICreateGameCallInfo info)
@@ -156,8 +158,9 @@ namespace Quantum
           break;
       }
 
-      // Dispose server and call base class
+      // Dispose server, call the factory on close cb, and call base class
       _server.Dispose();
+      _onCloseFactoryAction(PluginHost.GameId);
       base.OnCloseGame((ICloseGameCallInfo) response.CallInfo);
     }
   }

@@ -4,6 +4,7 @@ using System.IO;
 using Photon.Deterministic;
 using Photon.Deterministic.Protocol;
 using Photon.Deterministic.Server;
+using Photon.Hive.Plugin;
 using Quantum.CustomState.Commands;
 
 namespace Quantum
@@ -20,13 +21,15 @@ namespace Quantum
 
     private DeterministicCommandSerializer _cmdSerializer;
     private BackendServer _backendServer;
-
+    private IPluginFiber _globalFiber;
+    
     // Startup commands generated via an http call to our backend (see CustomQuantumPlugin::OnCreateGame)
     public List<DeterministicCommand> StartupCommands { get; } = new List<DeterministicCommand>();
 
-    public CustomQuantumServer(Dictionary<String, String> photonConfig)
+    public CustomQuantumServer(Dictionary<String, String> photonConfig, IPluginFiber globalFiber)
     {
       this.photonConfig = photonConfig;
+      this._globalFiber = globalFiber;
       _backendServer = new BackendServer();
     }
 
