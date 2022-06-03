@@ -20,17 +20,13 @@ namespace Quantum
     InputProvider inputProvider;
 
     private DeterministicCommandSerializer _cmdSerializer;
-    private BackendServer _backendServer;
-    private IPluginFiber _globalFiber;
     
     // Startup commands generated via an http call to our backend (see CustomQuantumPlugin::OnCreateGame)
     public List<DeterministicCommand> StartupCommands { get; } = new List<DeterministicCommand>();
 
-    public CustomQuantumServer(Dictionary<String, String> photonConfig, IPluginFiber globalFiber)
+    public CustomQuantumServer(Dictionary<String, String> photonConfig)
     {
       this.photonConfig = photonConfig;
-      this._globalFiber = globalFiber;
-      _backendServer = new BackendServer();
     }
 
     // here we're just caching the match configs (Deterministic and Runtime) for the authoritative simulation (match result validation)

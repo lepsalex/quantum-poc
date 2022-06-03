@@ -84,6 +84,7 @@
     <Compile Include="QuantumCustomPluginFactory.cs" />
     <Compile Include="QuantumJsonSerializer.cs" />
     <Compile Include="ReplayJsonSerializerSettings.cs" />
+    <Compile Include="WebsocketService.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
