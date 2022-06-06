@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using Photon.Deterministic;
 using Photon.Hive.Plugin;
+using WebSocket4Net;
 
 namespace Quantum
 {
   class QuantumCustomPluginFactory : IPluginFactory2
   {
     private IPluginFiber _globalFiber;
+    private BunchWebsocket _websocket;
     private Dictionary<string, CustomQuantumPlugin> _plugins = new Dictionary<string, CustomQuantumPlugin>();
 
     public IGamePlugin Create(IPluginHost gameHost, String pluginName, Dictionary<String, String> config, out String errorMsg)
@@ -21,19 +23,18 @@ namespace Quantum
       if (plugin.SetupInstance(gameHost, config, out errorMsg))
       {
         _plugins.Add(plugin.PluginHost.GameId, plugin);
-        BunchWebsocket.Send(plugin.PluginHost.GameId);
+        _websocket.Send(plugin.PluginHost.GameId);
         return plugin;
       }
 
       return null;
     }
 
-    public async void SetFactoryHost(IFactoryHost factoryHost, FactoryParams factoryParams)
+    public void SetFactoryHost(IFactoryHost factoryHost, FactoryParams factoryParams)
     {
       // Called once when server is initialized
       _globalFiber = factoryHost.CreateFiber();
-
-      await BunchWebsocket.Connect();
+      _websocket = new BunchWebsocket();
 
       // _globalFiber.Enqueue(() =>
       // {
@@ -41,6 +42,8 @@ namespace Quantum
       // });
       // _globalFiber.CreateTimer(() => { /* DO SOMETHING */ }, 5000, 5000);
     }
+    
+
 
     private void OnGameClose(String gameId)
     {

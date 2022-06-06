@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Photon.Deterministic;
 using WebSocket4Net;
+using ErrorEventArgs = SuperSocket.ClientEngine.ErrorEventArgs;
 using WebSocket = WebSocket4Net.WebSocket;
 using WebSocketState = System.Net.WebSockets.WebSocketState;
 
@@ -14,56 +15,42 @@ namespace Quantum
 {
   public class BunchWebsocket
   {
-    public static string Connection = "ws://localhost:8080/ws/commands";
-    public static CancellationTokenSource Cts = new CancellationTokenSource();
-    public static ClientWebSocket Socket = new ClientWebSocket();
+    private WebSocket _ws;
 
-    public static async System.Threading.Tasks.Task Connect()
+
+    public BunchWebsocket()
     {
-      var webSocket = new WebSocket(Connection);
-      
-      webSocket.
-      
-      try
-      {
-        await Socket.ConnectAsync(new Uri(Connection), Cts.Token);
-      } catch (Exception ex)
-      {
-        Console.WriteLine($"ERROR - {ex.Message}");
-      }
+      _ws = new WebSocket("ws://localhost:8080/ws/commands");
+      _ws.MessageReceived += MessageReceived;
+      _ws.Opened += OnOpened;
+      _ws.Closed += OnClosed;
+      _ws.Error += OnError;
+      _ws.Open();
     }
 
-    public static async System.Threading.Tasks.Task Send(string data)
+    public void Send(string message)
     {
-      if (!Socket.State.Equals(WebSocketState.Open))
-      {
-        await Connect();
-      }
-
-      await Socket.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(data)), WebSocketMessageType.Text, true,
-        Cts.Token);
+      _ws.Send(message);
+    }
+    
+    private void MessageReceived(object sender, MessageReceivedEventArgs e)
+    {
+      Log.Info("Message received: %s", e.Message);
+    }
+    
+    private void OnOpened(object sender, EventArgs e)
+    {
+      Log.Info("Connection opened: %s", e.ToString());
+    }
+    
+    private void OnClosed(object sender, EventArgs e)
+    {
+      Log.Info("Connection closed: %s", e.ToString());
     }
 
-    public static async System.Threading.Tasks.Task Receive(Action<string> onMessage)
+    private void OnError(object sender, ErrorEventArgs e)
     {
-      if (!Socket.State.Equals(WebSocketState.Open))
-      {
-        await Connect();
-      }
-
-      await System.Threading.Tasks.Task.Factory.StartNew(
-        async () =>
-        {
-          var rcvBytes = new byte[128];
-          var rcvBuffer = new ArraySegment<byte>(rcvBytes);
-          while (true)
-          {
-            WebSocketReceiveResult rcvResult = await Socket.ReceiveAsync(rcvBuffer, Cts.Token);
-            byte[] msgBytes = rcvBuffer.Skip(rcvBuffer.Offset).Take(rcvResult.Count).ToArray();
-            string rcvMsg = Encoding.UTF8.GetString(msgBytes);
-            onMessage.Invoke(rcvMsg);
-          }
-        }, Cts.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+      Log.Info("Error: %s", e.Exception.Message);
     }
   }
 }
