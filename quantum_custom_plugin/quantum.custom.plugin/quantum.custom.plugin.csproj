@@ -121,6 +121,7 @@
     <Compile Include="CustomQuantumServer.cs" />
     <Compile Include="CustomState\PlayerState.cs" />
     <Compile Include="CustomState\RoomState.cs" />
+    <Compile Include="model\RoomConnectionMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QuantumCustomPluginFactory.cs" />
     <Compile Include="QuantumJsonSerializer.cs" />

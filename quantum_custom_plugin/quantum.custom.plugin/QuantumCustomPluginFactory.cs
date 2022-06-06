@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Photon.Deterministic;
 using Photon.Hive.Plugin;
+using Quantum.model;
 using WebSocket4Net;
 
 namespace Quantum
@@ -15,15 +16,14 @@ namespace Quantum
     public IGamePlugin Create(IPluginHost gameHost, String pluginName, Dictionary<String, String> config, out String errorMsg)
     {
       var server = new CustomQuantumServer(config);
-      var plugin = new CustomQuantumPlugin(server, OnGameClose);
+      var plugin = new CustomQuantumPlugin(server, _globalFiber, OnGameClose);
 
       // You can inject fiber instance into server and plugin here
 
       InitLog(plugin);
       if (plugin.SetupInstance(gameHost, config, out errorMsg))
       {
-        _plugins.Add(plugin.PluginHost.GameId, plugin);
-        _websocket.Send(plugin.PluginHost.GameId);
+        OnGameOpen(plugin);
         return plugin;
       }
 
@@ -44,10 +44,16 @@ namespace Quantum
     }
     
 
+    private void OnGameOpen(CustomQuantumPlugin plugin)
+    {
+      _plugins.Add(plugin.PluginHost.GameId, plugin);
+      _websocket.SendRoomOpenMessage(plugin.PluginHost.GameId);
+    }
 
     private void OnGameClose(String gameId)
     {
       _plugins.Remove(gameId);
+      _websocket.SendRoomClosedMessage(gameId);
     }
     
     private void InitLog(DeterministicPlugin plugin)

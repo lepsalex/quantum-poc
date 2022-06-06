@@ -14,15 +14,17 @@ namespace Quantum
   public class CustomQuantumPlugin : DeterministicPlugin
   {
     protected CustomQuantumServer _server;
-
+    
     private BackendServer _backendServer;
+    private IPluginFiber _globalFiber;
     private Action<string> _onCloseFactoryAction;
 
-    public CustomQuantumPlugin(IServer server, Action<string> onCloseFactoryAction) : base(server)
+    public CustomQuantumPlugin(IServer server, IPluginFiber globalFiber, Action<string> onCloseFactoryAction) : base(server)
     {
       Assert.Check(server is CustomQuantumServer);
       _server = (CustomQuantumServer) server;
       _backendServer = new BackendServer();
+      _globalFiber = globalFiber;
       _onCloseFactoryAction = onCloseFactoryAction;
     }
 
@@ -160,7 +162,7 @@ namespace Quantum
 
       // Dispose server, call the factory on close cb, and call base class
       _server.Dispose();
-      _onCloseFactoryAction(PluginHost.GameId);
+      _globalFiber.Enqueue(() => _onCloseFactoryAction(PluginHost.GameId));
       base.OnCloseGame((ICloseGameCallInfo) response.CallInfo);
     }
   }
