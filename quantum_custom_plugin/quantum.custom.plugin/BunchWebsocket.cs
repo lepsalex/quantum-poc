@@ -20,10 +20,10 @@ namespace Quantum
     private WebSocket _ws;
 
 
-    public BunchWebsocket()
+    public BunchWebsocket(Action<RoomCommandMessage> onCommandMessage)
     {
       _ws = new WebSocket("ws://localhost:8080/ws/commands");
-      _ws.MessageReceived += MessageReceived;
+      _ws.MessageReceived += MakeMessageReceived(onCommandMessage);
       _ws.Opened += OnOpened;
       _ws.Closed += OnClosed;
       _ws.Error += OnError;
@@ -41,12 +41,16 @@ namespace Quantum
       var roomConnectionMessage = new RoomConnectionMessage(roomId, RoomStatus.CLOSED);
       _ws.Send(JsonConvert.SerializeObject(roomConnectionMessage));
     }
-    
-    private void MessageReceived(object sender, MessageReceivedEventArgs e)
+
+    private EventHandler<MessageReceivedEventArgs> MakeMessageReceived(Action<RoomCommandMessage> onCommandMessage)
     {
-      Log.Info("Message received: %s", e.Message);
+      return (sender, args) =>
+      {
+        var roomCommandMessage = JsonConvert.DeserializeObject<RoomCommandMessage>(args.Message);
+        onCommandMessage.Invoke(roomCommandMessage);
+      };
     }
-    
+
     private void OnOpened(object sender, EventArgs e)
     {
       Log.Info("Connection opened: %s", e.ToString());

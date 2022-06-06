@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 using Photon.Deterministic;
 using Photon.Hive.Plugin;
+using Quantum.CustomState.Commands;
 using Quantum.model;
 using WebSocket4Net;
 
@@ -13,7 +15,8 @@ namespace Quantum
     private BunchWebsocket _websocket;
     private Dictionary<string, CustomQuantumPlugin> _plugins = new Dictionary<string, CustomQuantumPlugin>();
 
-    public IGamePlugin Create(IPluginHost gameHost, String pluginName, Dictionary<String, String> config, out String errorMsg)
+    public IGamePlugin Create(IPluginHost gameHost, String pluginName, Dictionary<String, String> config,
+      out String errorMsg)
     {
       var server = new CustomQuantumServer(config);
       var plugin = new CustomQuantumPlugin(server, _globalFiber, OnGameClose);
@@ -34,15 +37,9 @@ namespace Quantum
     {
       // Called once when server is initialized
       _globalFiber = factoryHost.CreateFiber();
-      _websocket = new BunchWebsocket();
-
-      // _globalFiber.Enqueue(() =>
-      // {
-      //
-      // });
-      // _globalFiber.CreateTimer(() => { /* DO SOMETHING */ }, 5000, 5000);
+      _websocket = new BunchWebsocket(OnCommandMessage);
     }
-    
+
 
     private void OnGameOpen(CustomQuantumPlugin plugin)
     {
@@ -55,7 +52,41 @@ namespace Quantum
       _plugins.Remove(gameId);
       _websocket.SendRoomClosedMessage(gameId);
     }
-    
+
+    private void OnCommandMessage(RoomCommandMessage msg)
+    {
+      // get target room from message
+      var targetRoom = msg.RoomId;
+
+      // exit if room does not exist in registry
+      if (!_plugins.ContainsKey(targetRoom))
+      {
+        return;
+      }
+
+      // make command based on message type
+      DeterministicCommand command = null;
+
+      switch (msg.Type)
+      {
+        case "CommandChangePlayerColor":
+          command = new CommandChangePlayerColor()
+          {
+            Player = Convert.ToInt32(msg.Data["Player"]),
+            NewColorIndex = Convert.ToInt32(msg.Data["NewColorIndex"])
+          };
+          break;
+      }
+
+      if (command != null)
+      {
+        _plugins[targetRoom].PluginHost.GetRoomFiber().Enqueue(() =>
+        {
+          _plugins[targetRoom].SendDeterministicCommand(command);
+        });
+      }
+    }
+
     private void InitLog(DeterministicPlugin plugin)
     {
       Log.Init(

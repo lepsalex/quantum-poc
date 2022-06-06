@@ -28,6 +28,11 @@ namespace Quantum
       _onCloseFactoryAction = onCloseFactoryAction;
     }
 
+    public void SendDeterministicCommand(DeterministicCommand command)
+    {
+      _server.SendDeterministicCommand(command);
+    }
+
     public override void OnCreateGame(ICreateGameCallInfo info)
     {
       var userAuthToken = (string) info.AuthCookie["Token"];
