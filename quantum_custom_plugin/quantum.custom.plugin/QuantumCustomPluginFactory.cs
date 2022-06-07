@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Photon.Deterministic;
 using Photon.Hive.Plugin;
 using Quantum.Backend;
-using Quantum.CustomState.Commands;
 using Quantum.Model;
 
 namespace Quantum
@@ -63,44 +62,25 @@ namespace Quantum
       _websocketConnection.SendRoomClosedMessage(gameId);
     }
 
+    /**
+     * Handler for messages received via the websocket connection
+     * of the type RoomCommandMessage
+     */
     private void OnCommandMessage(RoomCommandMessage msg)
     {
-      // get target room from message
-      var targetRoom = msg.RoomId;
+      // Set targetPluginInstance if exists else return early
+      if (!_pluginRegistry.TryGetValue(msg.RoomId, out var targetPluginInstance)) return;
+      
+      // convert the RoomCommandMessage to a DeterministicCommand
+      // if not possible return early
+      if(!msg.TryGetDeterministicCommand(out var command)) return;
 
-      // exit if room does not exist in registry
-      if (!_pluginRegistry.ContainsKey(targetRoom))
+      // If a command is present, enqueue the send
+      // to the targetPluginInstance room fiber
+      targetPluginInstance.PluginHost.GetRoomFiber().Enqueue(() =>
       {
-        return;
-      }
-
-      // make command based on message type
-      DeterministicCommand command = null;
-
-      switch (msg.Type)
-      {
-        case "CommandChangePlayerColor":
-          command = new CommandChangePlayerColor()
-          {
-            Player = Convert.ToInt32(msg.Data["Player"]),
-            NewColorIndex = Convert.ToInt32(msg.Data["NewColorIndex"])
-          };
-          break;
-        case "CommandRemovePlayer":
-          command = new CommandRemovePlayer()
-          {
-            Player = Convert.ToInt32(msg.Data["Player"])
-          };
-          break;
-      }
-
-      if (command != null)
-      {
-        _pluginRegistry[targetRoom].PluginHost.GetRoomFiber().Enqueue(() =>
-        {
-          _pluginRegistry[targetRoom].SendDeterministicCommand(command);
-        });
-      }
+        targetPluginInstance.SendDeterministicCommand(command);
+      });
     }
 
     private void InitLog(DeterministicPlugin plugin)
