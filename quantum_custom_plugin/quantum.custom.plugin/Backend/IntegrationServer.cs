@@ -5,9 +5,9 @@ using Newtonsoft.Json;
 using Photon.Hive.Plugin;
 using Quantum.CustomState;
 
-namespace Quantum
+namespace Quantum.Backend
 {
-  public class BackendServer
+  public class IntegrationServer
   {
     public const string RootUrl = "http://localhost:8080";
     public const string RoomUrl = RootUrl + "/room";

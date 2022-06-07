@@ -1,4 +1,4 @@
-namespace Quantum.model
+namespace Quantum.Model
 {
   public class RoomConnectionMessage
   {

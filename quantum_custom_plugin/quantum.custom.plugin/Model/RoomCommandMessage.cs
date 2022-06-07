@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Quantum.model
+namespace Quantum.Model
 {
   public class RoomCommandMessage
   {

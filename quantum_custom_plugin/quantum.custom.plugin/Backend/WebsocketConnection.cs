@@ -7,20 +7,19 @@ using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Photon.Deterministic;
-using Quantum.model;
+using Quantum.Model;
 using WebSocket4Net;
 using ErrorEventArgs = SuperSocket.ClientEngine.ErrorEventArgs;
 using WebSocket = WebSocket4Net.WebSocket;
 using WebSocketState = System.Net.WebSockets.WebSocketState;
 
-namespace Quantum
+namespace Quantum.Backend
 {
-  public class BunchWebsocket
+  public class WebsocketConnection
   {
     private WebSocket _ws;
-
-
-    public BunchWebsocket(Action<RoomCommandMessage> onCommandMessage)
+    
+    public WebsocketConnection(Action<RoomCommandMessage> onCommandMessage)
     {
       _ws = new WebSocket("ws://localhost:8080/ws/commands");
       _ws.MessageReceived += MakeMessageReceived(onCommandMessage);

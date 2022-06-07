@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using Photon.Deterministic;
 using Photon.Deterministic.Server.Interface;
 using Photon.Hive.Plugin;
+using Quantum.Backend;
 using Quantum.CustomState;
 using Quantum.CustomState.Commands;
 
@@ -15,7 +16,7 @@ namespace Quantum
   {
     protected CustomQuantumServer _server;
     
-    private BackendServer _backendServer;
+    private IntegrationServer _integrationServer;
     private IPluginFiber _globalFiber;
     private Action<string> _onCloseFactoryAction;
 
@@ -23,7 +24,7 @@ namespace Quantum
     {
       Assert.Check(server is CustomQuantumServer);
       _server = (CustomQuantumServer) server;
-      _backendServer = new BackendServer();
+      _integrationServer = new IntegrationServer();
       _globalFiber = globalFiber;
       _onCloseFactoryAction = onCloseFactoryAction;
     }
@@ -38,10 +39,10 @@ namespace Quantum
       var userAuthToken = (string) info.AuthCookie["Token"];
 
       // should use PluginHost.GameId instead of BackendServer.DemoRoomName but need to work on unity side for that
-      var roomId = BackendServer.DemoRoomName;
+      var roomId = IntegrationServer.DemoRoomName;
 
       // make the http request with the provided callback that defers continuing until after the data is loaded
-      var roomRestoreRequest = _backendServer.RoomRestoreRequest(userAuthToken, roomId, OnCreateGameCallback);
+      var roomRestoreRequest = _integrationServer.RoomRestoreRequest(userAuthToken, roomId, OnCreateGameCallback);
       PluginHost.HttpRequest(roomRestoreRequest, info);
     }
 
@@ -86,9 +87,9 @@ namespace Quantum
       var userAuthToken = (string) info.AuthCookie["Token"];
 
       // should use PluginHost.GameId instead of BackendServer.DemoRoomName but need to work on unity side for that
-      var roomId = BackendServer.DemoRoomName;
+      var roomId = IntegrationServer.DemoRoomName;
 
-      var roomAuthRequest = _backendServer.RoomAuthRequest(userAuthToken, roomId, BeforeJoinCallback);
+      var roomAuthRequest = _integrationServer.RoomAuthRequest(userAuthToken, roomId, BeforeJoinCallback);
       PluginHost.HttpRequest(roomAuthRequest, info);
     }
 
@@ -140,12 +141,12 @@ namespace Quantum
 
       var roomState = new RoomState()
       {
-        roomId = BackendServer.DemoRoomName, // should use PluginHost.GameId but need to work on unity side for that
+        roomId = IntegrationServer.DemoRoomName, // should use PluginHost.GameId but need to work on unity side for that
         playerStates = JsonConvert.SerializeObject(playerStates)
       };
 
       // Serialize and send players data to backend
-      var roomSaveRequest = _backendServer.RoomSaveRequest(roomState, OnCloseGameCallback);
+      var roomSaveRequest = _integrationServer.RoomSaveRequest(roomState, OnCloseGameCallback);
       PluginHost.HttpRequest(roomSaveRequest, info);
     }
 

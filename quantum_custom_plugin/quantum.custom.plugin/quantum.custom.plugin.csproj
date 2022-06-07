@@ -116,18 +116,18 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BackendServer.cs" />
     <Compile Include="CustomQuantumPlugin.cs" />
     <Compile Include="CustomQuantumServer.cs" />
     <Compile Include="CustomState\PlayerState.cs" />
     <Compile Include="CustomState\RoomState.cs" />
-    <Compile Include="model\RoomCommandMessage.cs" />
-    <Compile Include="model\RoomConnectionMessage.cs" />
+    <Compile Include="Model\RoomCommandMessage.cs" />
+    <Compile Include="Model\RoomConnectionMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QuantumCustomPluginFactory.cs" />
     <Compile Include="QuantumJsonSerializer.cs" />
     <Compile Include="ReplayJsonSerializerSettings.cs" />
-    <Compile Include="BunchWebsocket.cs" />
+    <Compile Include="Backend\IntegrationServer.cs" />
+    <Compile Include="Backend\WebsocketConnection.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
