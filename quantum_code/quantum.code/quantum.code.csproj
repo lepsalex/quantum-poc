@@ -62,6 +62,7 @@
     <Compile Include="CommandSetup.Legacy.cs" />
     <Compile Include="Core\Core.cs" />
     <Compile Include="CustomState\Commands\CommandChangePlayerColor.cs" />
+    <Compile Include="CustomState\Commands\CommandRemovePlayer.cs" />
     <Compile Include="CustomState\Commands\CommandRestorePlayerState.cs" />
     <Compile Include="CustomState\Helpers\PlayerColorHelper.cs" />
     <Compile Include="CustomSystems\MovementSystem.cs" />

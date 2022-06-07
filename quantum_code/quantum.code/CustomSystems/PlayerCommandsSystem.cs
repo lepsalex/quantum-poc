@@ -12,7 +12,10 @@ namespace Quantum
                 command1?.Execute(f);
                 
                 var command2 = f.GetPlayerCommand(i) as CommandChangePlayerColor;
-                command2?.Execute(f);
+                command2?.Execute(f);            
+                
+                var command3 = f.GetPlayerCommand(i) as CommandRemovePlayer;
+                command3?.Execute(f);
             }
         }
     }

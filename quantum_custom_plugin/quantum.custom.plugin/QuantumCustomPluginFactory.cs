@@ -76,6 +76,12 @@ namespace Quantum
             NewColorIndex = Convert.ToInt32(msg.Data["NewColorIndex"])
           };
           break;
+        case "CommandRemovePlayer":
+          command = new CommandRemovePlayer()
+          {
+            Player = Convert.ToInt32(msg.Data["Player"])
+          };
+          break;
       }
 
       if (command != null)

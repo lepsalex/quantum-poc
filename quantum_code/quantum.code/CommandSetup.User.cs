@@ -9,6 +9,7 @@ namespace Quantum {
       // user commands go here
       factories.Add(new DeterministicCommandPool<CommandRestorePlayerState>());
       factories.Add(new DeterministicCommandPool<CommandChangePlayerColor>());
+      factories.Add(new DeterministicCommandPool<CommandRemovePlayer>());
     }
   }
 }
