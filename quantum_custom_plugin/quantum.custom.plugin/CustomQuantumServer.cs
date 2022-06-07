@@ -4,6 +4,7 @@ using System.IO;
 using Photon.Deterministic;
 using Photon.Deterministic.Protocol;
 using Photon.Deterministic.Server;
+using Photon.Hive.Plugin;
 using Quantum.CustomState.Commands;
 
 namespace Quantum
@@ -19,15 +20,13 @@ namespace Quantum
     InputProvider inputProvider;
 
     private DeterministicCommandSerializer _cmdSerializer;
-    private BackendServer _backendServer;
-
+    
     // Startup commands generated via an http call to our backend (see CustomQuantumPlugin::OnCreateGame)
     public List<DeterministicCommand> StartupCommands { get; } = new List<DeterministicCommand>();
 
     public CustomQuantumServer(Dictionary<String, String> photonConfig)
     {
       this.photonConfig = photonConfig;
-      _backendServer = new BackendServer();
     }
 
     // here we're just caching the match configs (Deterministic and Runtime) for the authoritative simulation (match result validation)

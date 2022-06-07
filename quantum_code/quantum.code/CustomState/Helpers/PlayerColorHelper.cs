@@ -8,6 +8,11 @@ namespace Quantum.CustomState.Helpers
         {
             return _playerColors[(playerRef._index - 1) % 6];
         }
+
+        public static PlayerColor GetColorAtIndex(int index)
+        {
+            return _playerColors[index % 6];
+        }
         
         private static Dictionary<int, PlayerColor> _playerColors = new()
         {

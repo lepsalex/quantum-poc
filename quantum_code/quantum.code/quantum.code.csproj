@@ -61,6 +61,8 @@
     <Compile Include="Core\CodeGen.cs" />
     <Compile Include="CommandSetup.Legacy.cs" />
     <Compile Include="Core\Core.cs" />
+    <Compile Include="CustomState\Commands\CommandChangePlayerColor.cs" />
+    <Compile Include="CustomState\Commands\CommandRemovePlayer.cs" />
     <Compile Include="CustomState\Commands\CommandRestorePlayerState.cs" />
     <Compile Include="CustomState\Helpers\PlayerColorHelper.cs" />
     <Compile Include="CustomSystems\MovementSystem.cs" />
@@ -81,6 +83,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="CustomState\DSL\Input.qtn" />
+    <Content Include="CustomState\DSL\PlayerDataUpdate.qtn" />
     <Content Include="CustomState\DSL\PlayerLink.qtn" />
     <Content Include="CustomState\DSL\Respawn.qtn" />
   </ItemGroup>
