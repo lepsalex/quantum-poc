@@ -23,6 +23,7 @@ namespace Quantum.CustomState.Commands
                     if (f.Unsafe.TryGetPointer<PlayerLink>(player.Entity, out var pl))
                     {
                         pl->Color = PlayerColorHelper.GetColorAtIndex(NewColorIndex);
+                        f.Events.PlayerDataUpdate(pl->PlayerRef);
                     }
                 }
             }

@@ -82,6 +82,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="CustomState\DSL\Input.qtn" />
+    <Content Include="CustomState\DSL\PlayerDataUpdate.qtn" />
     <Content Include="CustomState\DSL\PlayerLink.qtn" />
     <Content Include="CustomState\DSL\Respawn.qtn" />
   </ItemGroup>
