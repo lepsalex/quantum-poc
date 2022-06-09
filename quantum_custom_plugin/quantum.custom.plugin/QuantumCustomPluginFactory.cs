@@ -34,7 +34,7 @@ namespace Quantum
     {
       // Called once when server is initialized
       _globalFiber = factoryHost.CreateFiber();
-      _websocketConnection = new WebsocketConnection(OnCommandMessage);
+      _websocketConnection = new WebsocketConnection(OnCommandMessage, OnReconnect);
     }
 
 
@@ -81,6 +81,14 @@ namespace Quantum
       {
         targetPluginInstance.SendDeterministicCommand(command);
       });
+    }
+
+    private void OnReconnect()
+    {
+      foreach (var plugin in _pluginRegistry.Values)
+      {
+        _websocketConnection.SendRoomOpenMessage(plugin.PluginHost.GameId);
+      }
     }
 
     private void InitLog(DeterministicPlugin plugin)
