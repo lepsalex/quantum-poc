@@ -10,6 +10,7 @@ namespace Quantum
   class QuantumCustomPluginFactory : IPluginFactory2
   {
     private IPluginFiber _globalFiber;
+    private IntegrationServer _integrationServer;
     private WebsocketConnection _websocketConnection;
     private Dictionary<string, CustomQuantumPlugin> _pluginRegistry = new Dictionary<string, CustomQuantumPlugin>();
 
@@ -17,7 +18,7 @@ namespace Quantum
       out String errorMsg)
     {
       var server = new CustomQuantumServer(config);
-      var plugin = new CustomQuantumPlugin(server, _globalFiber, OnCloseGameInstance);
+      var plugin = new CustomQuantumPlugin(server, _integrationServer, _globalFiber, OnCloseGameInstance);
 
       // You can inject fiber instance into server and plugin here
       InitLog(plugin);
@@ -34,7 +35,10 @@ namespace Quantum
     {
       // Called once when server is initialized
       _globalFiber = factoryHost.CreateFiber();
-      _websocketConnection = new WebsocketConnection(OnCommandMessage, OnReconnect);
+      _integrationServer = new IntegrationServer(factoryParams.PluginConfig["IntegrationServerBaseUrl"],
+        factoryParams.PluginConfig["IntegrationServerAuthToken"]);
+      _websocketConnection = new WebsocketConnection(factoryParams.PluginConfig["WebcoketServerEndpointUrl"],
+        OnCommandMessage, OnReconnect);
     }
 
 
@@ -70,10 +74,10 @@ namespace Quantum
     {
       // Set targetPluginInstance if exists else return early
       if (!_pluginRegistry.TryGetValue(msg.RoomId, out var targetPluginInstance)) return;
-      
+
       // convert the RoomCommandMessage to a DeterministicCommand
       // if not possible return early
-      if(!msg.TryGetDeterministicCommand(out var command)) return;
+      if (!msg.TryGetDeterministicCommand(out var command)) return;
 
       // If a command is present, enqueue the send
       // to the targetPluginInstance room fiber

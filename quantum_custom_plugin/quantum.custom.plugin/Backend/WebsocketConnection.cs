@@ -14,11 +14,11 @@ namespace Quantum.Backend
     private WebSocket _ws;
     private Action _onReconnect;
 
-    public WebsocketConnection(Action<RoomCommandMessage> onCommandMessage, Action onReconnect)
+    public WebsocketConnection(String endpointUrl, Action<RoomCommandMessage> onCommandMessage, Action onReconnect)
     {
       _onReconnect = onReconnect;
 
-      _ws = new WebSocket("ws://localhost:8080/ws/commands");
+      _ws = new WebSocket(endpointUrl);
       _ws.MessageReceived += MakeMessageReceived(onCommandMessage);
       _ws.Opened += OnOpened;
       _ws.Closed += OnClosed;

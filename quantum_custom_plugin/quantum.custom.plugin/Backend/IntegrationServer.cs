@@ -9,13 +9,18 @@ namespace Quantum.Backend
 {
   public class IntegrationServer
   {
-    public const string RootUrl = "http://localhost:8080";
-    public const string RoomUrl = RootUrl + "/room";
-    public const string AuthUrl = RootUrl + "/auth";
+    private readonly string _roomUrl;
+    private readonly string _authUrl;
+    private readonly string _serverAuthToken = "server";
+
     public const string DemoRoomName = "alex-demo";
 
-    // for demo only, would come from env
-    public const string serverAuthToken = "server";
+    public IntegrationServer(string baseUrl, string serverAuthToken)
+    {
+      _roomUrl = baseUrl + "/room";
+      _authUrl = baseUrl + "/auth";
+      _serverAuthToken = serverAuthToken;
+    }
 
     public HttpRequest RoomSaveRequest(RoomState roomState, HttpRequestCallback onResponseCallback)
     {
@@ -26,8 +31,8 @@ namespace Quantum.Backend
       return new HttpRequest()
       {
         Async = false,
-        Url = RoomUrl,
-        CustomHeaders = makeAuthHeaders(serverAuthToken),
+        Url = _roomUrl,
+        CustomHeaders = makeAuthHeaders(_serverAuthToken),
         Method = "POST",
         ContentType = "application/json",
         DataStream = stream,
@@ -40,7 +45,7 @@ namespace Quantum.Backend
       return new HttpRequest()
       {
         Async = false,
-        Url = $"{RoomUrl}/{roomId}",
+        Url = $"{_roomUrl}/{roomId}",
         CustomHeaders = makeAuthHeaders(userAuthToken),
         Method = "GET",
         ContentType = "application/json",
@@ -53,7 +58,7 @@ namespace Quantum.Backend
       return new HttpRequest()
       {
         Async = false,
-        Url = $"{AuthUrl}/room/${roomId}",
+        Url = $"{_authUrl}/room/${roomId}",
         CustomHeaders = makeAuthHeaders(userAuthToken),
         Method = "POST",
         ContentType = "application/json",

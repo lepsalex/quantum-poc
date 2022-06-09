@@ -14,17 +14,17 @@ namespace Quantum
 {
   public class CustomQuantumPlugin : DeterministicPlugin
   {
+    // Dependencies
     protected CustomQuantumServer _server;
-    
     private IntegrationServer _integrationServer;
     private IPluginFiber _globalFiber;
     private Action<string> _onCloseFactoryAction;
 
-    public CustomQuantumPlugin(IServer server, IPluginFiber globalFiber, Action<string> onCloseFactoryAction) : base(server)
+    public CustomQuantumPlugin(IServer server, IntegrationServer integrationServer, IPluginFiber globalFiber, Action<string> onCloseFactoryAction) : base(server)
     {
       Assert.Check(server is CustomQuantumServer);
       _server = (CustomQuantumServer) server;
-      _integrationServer = new IntegrationServer();
+      _integrationServer = integrationServer;
       _globalFiber = globalFiber;
       _onCloseFactoryAction = onCloseFactoryAction;
     }
